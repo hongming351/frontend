@@ -1,0 +1,285 @@
+/* 登录页面专用样式 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-color);
+}
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 50%, var(--secondary-color) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 添加装饰性背景元素 */
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    z-index: 1;
+}
+
+.login-container > * {
+    position: relative;
+    z-index: 2;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: var(--white-color);
+}
+
+.login-header h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--white-color) 0%, rgba(255, 255, 255, 0.9) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.login-header p {
+    font-size: 1.2rem;
+    opacity: 0.95;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+/* 添加动画效果 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-form {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    padding: 45px;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-large);
+    width: 100%;
+    max-width: 420px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideUp 0.8s ease-out 0.4s both;
+}
+
+/* 添加表单动画 */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 15px;
+    letter-spacing: 0.3px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 18px 22px;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-large);
+    font-size: 16px;
+    transition: var(--transition);
+    background-color: var(--white-color);
+    font-weight: 400;
+    color: var(--dark-color);
+    box-sizing: border-box;
+}
+
+.form-group input::placeholder,
+.form-group select {
+    color: var(--light-gray);
+    font-weight: 400;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px var(--primary-light), 0 6px 16px rgba(74, 107, 255, 0.15);
+    transform: translateY(-3px);
+    background-color: var(--white-color);
+}
+
+.captcha-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.captcha-container input {
+    flex: 1;
+}
+
+.captcha-container img {
+    width: 105px;
+    height: 52px;
+    border-radius: var(--radius-medium);
+    cursor: pointer;
+    border: 2px solid var(--border-light);
+    transition: var(--transition);
+    background-color: var(--white-color);
+}
+
+.captcha-container img:hover {
+    border-color: var(--primary-color);
+    transform: scale(1.03) translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.checkbox-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.forgot-password {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+    color: #0E4CD0;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: var(--white-color);
+    border: none;
+    border-radius: var(--radius-large);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 8px 25px rgba(74, 107, 255, 0.4), 0 4px 12px rgba(74, 107, 255, 0.2);
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.login-btn:hover::before {
+    left: 100%;
+}
+
+.login-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(74, 107, 255, 0.5), 0 8px 20px rgba(74, 107, 255, 0.3);
+}
+
+.login-btn:active {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(74, 107, 255, 0.4), 0 4px 10px rgba(74, 107, 255, 0.2);
+}
+
+.login-footer {
+    margin-top: 24px;
+    text-align: center;
+    color: var(--white-color);
+}
+
+.login-footer a {
+    color: var(--white-color);
+    text-decoration: underline;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.login-footer a:hover {
+    opacity: 0.8;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+    .login-form {
+        padding: 30px 20px;
+        margin: 0 10px;
+    }
+    
+    .login-header h1 {
+        font-size: 2rem;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 14px 16px;
+        font-size: 15px;
+    }
+    
+    .login-btn {
+        padding: 14px;
+        font-size: 16px;
+    }
+}

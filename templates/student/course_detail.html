@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程详情 - 智能OJ系统学生端</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        success: '#52C41A',
+                        warning: '#FAAD14',
+                        danger: '#FF4D4F',
+                        dark: '#1D2129',
+                        'dark-2': '#4E5969',
+                        'light-1': '#F2F3F5',
+                        'light-2': '#E5E6EB',
+                        'light-3': '#C9CDD4'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .nav-item {
+                @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-primary/10 text-dark-2;
+            }
+            .nav-item.active {
+                @apply bg-primary/10 text-primary font-medium;
+            }
+            .card {
+                @apply bg-white rounded-xl shadow-sm border border-light-2 overflow-hidden transition-shadow hover:shadow-md;
+            }
+            .btn {
+                @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2;
+            }
+            .btn-primary {
+                @apply bg-primary text-white hover:bg-primary/90 active:bg-primary/80;
+            }
+            .btn-outline {
+                @apply border border-light-3 hover:border-primary hover:text-primary;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light-1 text-dark min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white border-b border-light-2 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <button onclick="goBack()" class="p-2 rounded-md hover:bg-light-1">
+                    <i class="fa fa-arrow-left text-dark-2"></i>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                        <i class="fa fa-code"></i>
+                    </div>
+                    <h1 class="text-xl font-semibold text-dark hidden sm:block">智能OJ系统-学生端</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden md:block">
+                    <input type="text" placeholder="搜索作业..." class="pl-10 pr-4 py-2 rounded-lg border border-light-2 focus:outline-none focus:border-primary w-64 text-sm">
+                    <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-light-3"></i>
+                </div>
+
+                <button class="p-2 rounded-full hover:bg-light-1 relative">
+                    <i class="fa fa-bell-o text-dark-2"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full"></span>
+                </button>
+
+                <div class="flex items-center gap-2 group">
+                    <img src="https://picsum.photos/id/64/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border border-light-2">
+                    <span class="text-sm font-medium hidden sm:block">{{ user.username }}</span>
+                    <i class="fa fa-angle-down text-light-3 text-xs transition-transform group-hover:rotate-180"></i>
+
+                    <!-- 用户菜单 -->
+                    <div class="absolute right-4 mt-14 w-48 bg-white rounded-lg shadow-lg border border-light-2 py-2 hidden group-hover:block z-50">
+                        <a href="/student/profile" class="block px-4 py-2 text-sm hover:bg-light-1 transition-colors">
+                            <i class="fa fa-user-o mr-2 text-light-3"></i>个人资料
+                        </a>
+                        <a href="/student/profile" class="block px-4 py-2 text-sm hover:bg-light-1 transition-colors">
+                            <i class="fa fa-key mr-2 text-light-3"></i>修改密码
+                        </a>
+                        <div class="border-t border-light-2 my-1"></div>
+                        <a href="/logout" class="block px-4 py-2 text-sm text-danger hover:bg-light-1 transition-colors">
+                            <i class="fa fa-sign-out mr-2"></i>退出登录
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 课程信息栏 -->
+    <div class="bg-white border-b border-light-2 px-4 py-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-dark" id="course-name">加载中...</h1>
+                    <div class="flex items-center gap-2 mt-2">
+                        <i class="fa fa-users text-primary"></i>
+                        <span class="text-dark-2" id="class-info">加载中...</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 text-sm text-dark-2">
+                        <i class="fa fa-user"></i>
+                        <span id="teacher-name">加载中...</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-dark-2">
+                        <i class="fa fa-calendar"></i>
+                        <span id="course-status">进行中</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- 左侧作业表导航栏 -->
+        <aside class="w-80 bg-white border-r border-light-2 flex-shrink-0">
+            <div class="h-full flex flex-col">
+                <div class="p-4 border-b border-light-2">
+                    <h3 class="font-semibold text-dark flex items-center gap-2">
+                        <i class="fa fa-list text-primary"></i>
+                        作业表
+                    </h3>
+                </div>
+
+                <nav class="flex-1 overflow-y-auto p-2">
+                    <div id="assignments-nav" class="space-y-1">
+                        <!-- 作业表项将由JavaScript动态加载 -->
+                        <div id="no-assignments" class="text-center py-8 text-dark-2">
+                            <div class="w-12 h-12 bg-light-1 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fa fa-file-text-o text-2xl text-light-3"></i>
+                            </div>
+                            <p class="text-sm">暂无作业表</p>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="flex-1 overflow-y-auto p-6">
+            <div class="max-w-6xl mx-auto space-y-6">
+                <!-- 作业详情区域 -->
+                <div id="assignment-content">
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-light-1 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-file-text-o text-3xl text-light-3"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-dark-2 mb-2">请选择一个作业表</h3>
+                        <p class="text-dark-2">从左侧导航栏选择要查看的作业表</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 页面数据
+        let currentCourseId = null;
+        let currentClassId = null;
+        let currentStudentId = null;
+        let currentAssignmentId = null;
+
+        // 返回上一页
+        function goBack() {
+            window.location.href = '/student/dashboard#course';
+        }
+
+        // 获取URL参数
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            currentCourseId = getUrlParameter('course_id');
+            currentClassId = getUrlParameter('class_id');
+
+            if (!currentCourseId) {
+                alert('缺少课程参数');
+                goBack();
+                return;
+            }
+
+            try {
+                // 获取当前用户信息
+                await loadCurrentUser();
+                // 获取课程和班级信息
+                await loadCourseInfo();
+                // 获取作业表列表
+                await loadAssignments();
+            } catch (error) {
+                console.error('初始化失败:', error);
+                alert('页面加载失败，请刷新重试');
+            }
+        });
+
+        // 获取当前用户信息
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/api/students/profile');
+                const data = await response.json();
+
+                if (data.success) {
+                    currentStudentId = data.data.id;
+                } else {
+                    console.warn('获取用户信息失败:', data.message);
+                    // 如果API调用失败，尝试从其他方式获取
+                    currentStudentId = getUrlParameter('student_id') || null;
+                }
+            } catch (error) {
+                console.warn('获取用户信息失败:', error);
+                currentStudentId = getUrlParameter('student_id') || null;
+            }
+        }
+
+        // 加载课程和班级信息
+        async function loadCourseInfo() {
+            try {
+                const response = await fetch(`/api/student/course/info?course_id=${currentCourseId}&class_id=${currentClassId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('course-name').textContent = data.data.course_name;
+                    document.getElementById('class-info').textContent = data.data.class_name;
+                    document.getElementById('teacher-name').textContent = data.data.teacher_name;
+                    document.title = `${data.data.course_name} - 智能OJ系统学生端`;
+                } else {
+                    throw new Error(data.message || '获取课程信息失败');
+                }
+            } catch (error) {
+                console.error('获取课程信息失败:', error);
+                document.getElementById('course-name').textContent = '获取失败';
+                document.getElementById('class-info').textContent = '获取失败';
+            }
+        }
+
+        // 加载作业表列表
+        async function loadAssignments() {
+            try {
+                const response = await fetch(`/api/student/assignments?course_id=${currentCourseId}&class_id=${currentClassId}`);
+                const data = await response.json();
+
+                const navContainer = document.getElementById('assignments-nav');
+                const noAssignments = document.getElementById('no-assignments');
+
+                if (data.success && data.data && data.data.length > 0) {
+                    noAssignments.style.display = 'none';
+
+                    navContainer.innerHTML = data.data.map(assignment => `
+                        <div class="nav-item" onclick="selectAssignment(${assignment.id})">
+                            <i class="fa fa-file-text-o"></i>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium truncate">${assignment.title}</div>
+                                <div class="text-xs text-dark-2 truncate">${assignment.description || ''}</div>
+                                <div class="text-xs text-light-3 mt-1">
+                                    截止时间: ${new Date(assignment.deadline).toLocaleString('zh-CN')}
+                                </div>
+                            </div>
+                            ${assignment.status === 'completed' ?
+                                '<i class="fa fa-check-circle text-success"></i>' :
+                                '<i class="fa fa-clock-o text-warning"></i>'}
+                        </div>
+                    `).join('');
+                } else {
+                    noAssignments.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('获取作业表失败:', error);
+                noAssignments.innerHTML = `
+                    <div class="text-center py-8 text-danger">
+                        <div class="w-12 h-12 bg-danger/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa fa-exclamation-triangle text-xl"></i>
+                        </div>
+                        <p class="text-sm">获取作业表失败</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 选择作业表
+        function selectAssignment(assignmentId) {
+            // 设置当前作业ID
+            currentAssignmentId = assignmentId;
+
+            // 更新导航栏激活状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+
+            // 加载作业详情
+            loadAssignmentDetail(assignmentId);
+        }
+
+        // 加载作业详情
+        async function loadAssignmentDetail(assignmentId) {
+            const contentArea = document.getElementById('assignment-content');
+
+            contentArea.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-light-1 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-spinner fa-spin text-3xl text-primary"></i>
+                    </div>
+                    <p class="text-dark-2">正在加载作业详情...</p>
+                </div>
+            `;
+
+            try {
+                // 后端API会从session中自动获取student_id，无需在URL中传递
+                const response = await fetch(`/api/student/assignment/detail?assignment_id=${assignmentId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    contentArea.innerHTML = `
+                        <div class="card p-6">
+                            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                                <div>
+                                    <h2 class="text-xl font-semibold">${data.data.title}</h2>
+                                    <p class="text-dark-2 mt-1">${data.data.description || '暂无描述'}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                                        ${data.data.status === 'completed' ? '已完成' : '进行中'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div class="text-center p-4 bg-light-1 rounded-lg">
+                                    <div class="text-2xl font-bold text-primary">${data.data.total_problems}</div>
+                                    <div class="text-sm text-dark-2">总题目数</div>
+                                </div>
+                                <div class="text-center p-4 bg-light-1 rounded-lg">
+                                    <div class="text-2xl font-bold text-success">${data.data.completed_problems}</div>
+                                    <div class="text-sm text-dark-2">已完成</div>
+                                </div>
+                                <div class="text-center p-4 bg-light-1 rounded-lg">
+                                    <div class="text-2xl font-bold text-warning">${data.data.total_problems - data.data.completed_problems}</div>
+                                    <div class="text-sm text-dark-2">未完成</div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <h3 class="font-semibold text-dark">题目列表</h3>
+                                <div class="space-y-3" id="problems-list">
+                                    ${data.data.problems.map(problem => `
+                                        <div class="border border-light-2 rounded-lg p-4 hover:border-primary/30 transition-colors">
+                                            <div class="flex items-start justify-between gap-4">
+                                                <div class="flex-1">
+                                                    <h4 class="font-medium">${problem.title}</h4>
+                                                    <p class="text-sm text-dark-2 mt-1">${problem.description || '暂无描述'}</p>
+                                                    <div class="flex items-center gap-4 mt-2 text-xs text-dark-2">
+                                                        <span class="px-2 py-1 bg-light-1 rounded">${problem.difficulty}</span>
+                                                        <span>类型: ${problem.type}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    ${problem.status === 'completed' ?
+                                                        '<span class="px-3 py-1 bg-success/10 text-success rounded-full text-sm">已完成</span>' :
+                                                        '<span class="px-3 py-1 bg-warning/10 text-warning rounded-full text-sm">未完成</span>'}
+                                                    <button onclick="startProblem(${problem.id})" class="btn btn-primary text-sm">
+                                                        ${problem.status === 'completed' ? '查看' : '开始'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.message || '获取作业详情失败');
+                }
+            } catch (error) {
+                console.error('获取作业详情失败:', error);
+                contentArea.innerHTML = `
+                    <div class="text-center py-12 text-danger">
+                        <div class="w-16 h-16 bg-danger/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-exclamation-triangle text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium mb-2">加载失败</h3>
+                        <p class="text-dark-2">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 开始做题
+        function startProblem(problemId) {
+            // 跳转到答题页面，需要传递题目ID和作业ID
+            const assignmentId = getUrlParameter('assignment_id') || currentAssignmentId;
+
+            // 如果仍然没有作业ID，提示用户先选择作业
+            if (!assignmentId) {
+                alert('请先选择一个作业表后再开始答题');
+                return;
+            }
+
+            window.location.href = `/student/problem/solve?problem_id=${problemId}&assignment_id=${assignmentId}`;
+        }
+    </script>
+</body>
+</html>

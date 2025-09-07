@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能OJ系统 - 管理员平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        dark: '#1E293B',
+                        'dark-2': '#64748B',
+                        'light-1': '#F8FAFC',
+                        'light-2': '#E2E8F0',
+                        'light-3': '#CBD5E1'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .nav-item {
+                @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-primary/10 text-dark-2 cursor-pointer;
+            }
+            .nav-item.active {
+                @apply bg-primary/10 text-primary font-medium;
+            }
+            .btn {
+                @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2;
+            }
+            .btn-primary {
+                @apply bg-primary text-white hover:bg-primary/90 active:bg-primary/80;
+            }
+            .btn-outline {
+                @apply border border-light-3 hover:border-primary hover:text-primary;
+            }
+            .stat-card {
+                @apply bg-white rounded-xl shadow-sm border border-light-2 p-5 card-hover;
+            }
+            .tab-active {
+                @apply text-primary border-primary font-medium;
+            }
+            .page-section {
+                display: none;
+            }
+            .page-section.active {
+                display: block;
+                animation: fadeIn 0.3s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light-1 text-dark min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white border-b border-light-2 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <button id="sidebar-toggle" class="lg:hidden p-2 rounded-md hover:bg-light-1">
+                    <i class="fa fa-bars text-dark-2"></i>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                        <i class="fa fa-cogs"></i>
+                    </div>
+                    <h1 class="text-xl font-semibold text-dark hidden sm:block">智能OJ系统 - 管理员平台</h1>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="relative hidden md:block">
+                    <input type="text" placeholder="搜索用户或课程..." class="pl-10 pr-4 py-2 rounded-lg border border-light-2 focus:outline-none focus:border-primary w-64 text-sm">
+                    <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-light-3"></i>
+                </div>
+                
+                <button class="p-2 rounded-full hover:bg-light-1 relative">
+                    <i class="fa fa-bell-o text-dark-2"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full"></span>
+                </button>
+                
+                <div class="flex items-center gap-2 group">
+                    <img src="https://picsum.photos/id/1012/40/40" alt="管理员头像" class="w-8 h-8 rounded-full object-cover border border-light-2">
+                    <span class="text-sm font-medium hidden sm:block">{{ user.username }}</span>
+                    <i class="fa fa-angle-down text-light-3 text-xs"></i>
+                    
+                    <!-- 用户菜单 -->
+                    <div class="absolute right-0 mt-14 w-48 bg-white rounded-lg shadow-lg border border-light-2 py-2 hidden group-hover:block z-50 transform -translate-x-2">
+                        <a href="#" class="block px-4 py-2 text-sm hover:bg-light-1 transition-colors" onclick="navigateTo('profile')">
+                            <i class="fa fa-user-o mr-2 text-light-3"></i>个人资料
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-sm hover:bg-light-1 transition-colors" onclick="navigateTo('password-reset')">
+                            <i class="fa fa-key mr-2 text-light-3"></i>修改密码
+                        </a>
+                        <div class="border-t border-light-2 my-1"></div>
+                        <a href="/logout" class="block px-4 py-2 text-sm text-danger hover:bg-light-1 transition-colors">
+                            <i class="fa fa-sign-out mr-2"></i>退出登录
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside id="sidebar" class="w-64 bg-white border-r border-light-2 flex-shrink-0 hidden lg:block transition-all duration-300 ease-in-out transform z-40 h-[calc(100vh-61px)] overflow-y-auto">
+            <div class="h-full flex flex-col">
+                <nav class="p-3 flex-1 overflow-y-auto">
+                    <div class="space-y-1">
+                        <p class="px-4 text-xs font-medium text-light-3 uppercase tracking-wider mb-2">系统管理</p>
+                        <a href="#dashboard" class="nav-item active" onclick="navigateTo('dashboard')">
+                            <i class="fa fa-tachometer w-5 text-center"></i>
+                            <span>仪表盘</span>
+                        </a>
+                        <!-- 已删除用户管理导航项 -->
+                    </div>
+                    
+                    <div class="space-y-1 mt-6">
+                        <p class="px-4 text-xs font-medium text-light-3 uppercase tracking-wider mb-2">教师管理</p>
+                        <a href="#teacher-management" class="nav-item" onclick="navigateTo('teacher-management')">
+                            <i class="fa fa-user-circle-o w-5 text-center"></i>
+                            <span>教师管理</span>
+                        </a>
+                    </div>
+                    
+                    
+                </nav>
+                
+                <div class="p-4 border-t border-light-2">
+                    <div class="bg-primary/5 rounded-xl p-4">
+                        <h4 class="font-medium text-sm mb-2">系统信息</h4>
+                        <p class="text-xs text-dark-2 mb-1">版本: v2.3.1</p>
+                        <p class="text-xs text-dark-2">上次更新: 2023-06-01</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6">
+            <div class="max-w-7xl mx-auto space-y-6">
+                <!-- 1. 仪表盘页面 -->
+                <section id="dashboard" class="page-section active">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-semibold">系统管理</h2>
+                            <p class="text-dark-2 mt-1">管理用户账号、课程权限和系统设置</p>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button class="btn btn-outline">
+                                <i class="fa fa-download"></i>
+                                <span>导出数据</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 统计卡片 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="stats-cards">
+                        <div class="stat-card">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-dark-2 text-sm">总用户数</p>
+                                    <h3 class="text-2xl font-semibold mt-1" id="total-users">加载中...</h3>
+                                    <p class="text-success text-xs mt-2 flex items-center" id="monthly-new">
+                                        <i class="fa fa-arrow-up mr-1"></i> 本月 +0
+                                    </p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <i class="fa fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-dark-2 text-sm">教师数量</p>
+                                    <h3 class="text-2xl font-semibold mt-1" id="teachers-count">加载中...</h3>
+                                    <p class="text-success text-xs mt-2 flex items-center">
+                                        <i class="fa fa-arrow-up mr-1"></i> 实时数据
+                                    </p>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+                                    <i class="fa fa-user-circle-o"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div>
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <p class="text-dark-2 text-sm">学生数量</p>
+                                        <h3 class="text-2xl font-semibold mt-1" id="students-count">加载中...</h3>
+                                        <p class="text-success text-xs mt-2 flex items-center">
+                                            <i class="fa fa-arrow-up mr-1"></i> 实时数据
+                                        </p>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success">
+                                        <i class="fa fa-graduation-cap"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 2. 教师管理页面 -->
+                <section id="teacher-management" class="page-section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-semibold">教师管理</h2>
+                            <p class="text-dark-2 mt-1">管理系统内所有教师账号</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <input type="text" id="teacher-search" placeholder="搜索教师..." 
+                                    class="pl-9 pr-4 py-2 rounded-lg border border-light-2 focus:outline-none focus:border-primary w-64 text-sm">
+                                <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-light-3"></i>
+                            </div>
+                            <button class="btn btn-primary" onclick="openAddTeacherModal()">
+                                <i class="fa fa-plus"></i>
+                                <span>添加教师</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-light-2 p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-light-1">
+                                        <th class="text-left px-4 py-3 text-xs font-medium text-dark-2 uppercase tracking-wider">教师信息</th>
+                                        <th class="text-left px-4 py-3 text-xs font-medium text-dark-2 uppercase tracking-wider">手机号</th>
+                                        <th class="text-left px-4 py-3 text-xs font-medium text-dark-2 uppercase tracking-wider">教授课程</th>
+                                        <th class="text-left px-4 py-3 text-xs font-medium text-dark-2 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-light-2">
+                    <!-- 教师数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+                
+                <!-- 4. 权限设置页面 -->
+                <section id="permission-settings" class="page-section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-semibold">权限设置</h2>
+                            <p class="text-dark-2 mt-1">管理用户权限和访问控制</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-light-2 p-6">
+                        <p class="text-center py-10 text-dark-2">权限设置功能内容将在这里展示</p>
+                    </div>
+                </section>
+                
+                <!-- 其他必要页面 -->
+                <section id="profile" class="page-section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-semibold">个人资料</h2>
+                            <p class="text-dark-2 mt-1">查看和编辑个人信息</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-light-2 p-6">
+                        <div class="max-w-2xl mx-auto">
+                            <div class="text-center mb-8">
+                                <img src="https://picsum.photos/id/1012/100/100" alt="管理员头像" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-light-2">
+                                <h3 class="text-xl font-semibold">{{ user.username }}</h3>
+                                <p class="text-dark-2">管理员</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-dark mb-4 pb-2 border-b border-light-2">基本信息</h4>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <p class="text-sm text-dark-2 mb-1">用户名</p>
+                                            <p class="font-medium">{{ user.username }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-dark-2 mb-1">手机号</p>
+                                            <p class="font-medium">{{ user.telenum if user.telenum else '未设置' }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-dark-2 mb-1">邮箱</p>
+                                            <p class="font-medium">{{ user.email if user.email else '未设置' }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-dark-2 mb-1">身份</p>
+                                            <p class="font-medium">管理员</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-dark mb-4 pb-2 border-b border-light-2">系统信息</h4>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <p class="text-sm text-dark-2 mb-1">用户ID</p>
+                                            <p class="font-medium">{{ user.id }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-dark-2 mb-1">注册时间</p>
+                                            <p class="font-medium">系统管理员账号</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-dark-2 mb-1">最后登录</p>
+                                            <p class="font-medium">刚刚</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-dark-2 mb-1">状态</p>
+                                            <span class="px-2 py-1 text-xs rounded-full bg-success/10 text-success">正常</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 pt-6 border-t border-light-2">
+                                <h4 class="font-semibold text-dark mb-4">操作</h4>
+                                <div class="flex gap-3">
+                                    <button class="btn btn-outline">
+                                        <i class="fa fa-edit"></i>
+                                        <span>编辑信息</span>
+                                    </button>
+                                    <button class="btn btn-outline">
+                                        <i class="fa fa-key"></i>
+                                        <span>修改密码</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="password-reset" class="page-section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-semibold">修改密码</h2>
+                            <p class="text-dark-2 mt-1">更新您的登录密码</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-light-2 p-6">
+                        <p class="text-center py-10 text-dark-2">修改密码功能内容将在这里展示</p>
+                    </div>
+                </section>
+                
+                <section id="add-student" class="page-section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-semibold">添加学生</h2>
+                            <p class="text-dark-2 mt-1">创建新的学生账号</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-light-2 p-6">
+                        <p class="text-center py-10 text-dark-2">添加学生功能内容将在这里展示</p>
+                    </div>
+                </section>
+                
+                <!-- 编辑教师课程权限页面 -->
+                <section id="edit-teacher-courses" class="page-section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-semibold">编辑教师课程权限</h2>
+                            <p class="text-dark-2 mt-1">设置教师可管理的课程</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-light-2 p-6">
+                        <p class="text-center py-10 text-dark-2">编辑教师课程权限功能内容将在这里展示</p>
+                    </div>
+                </section>
+                
+                <!-- 教师详情页面 -->
+                <section id="teacher-detail" class="page-section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-semibold">教师详情</h2>
+                            <p class="text-dark-2 mt-1">查看教师详细信息</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-light-2 p-6">
+                        <p class="text-center py-10 text-dark-2">教师详情功能内容将在这里展示</p>
+                    </div>
+                </section>
+                
+                <!-- 编辑教师页面 -->
+                <section id="edit-teacher" class="page-section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-semibold">编辑教师信息</h2>
+                            <p class="text-dark-2 mt-1">修改教师账号信息</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-light-2 p-6">
+                        <p class="text-center py-10 text-dark-2">编辑教师信息功能内容将在这里展示</p>
+                    </div>
+                </section>
+                
+                <!-- 学生详情页面 -->
+                <section id="student-detail" class="page-section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-semibold">学生详情</h2>
+                            <p class="text-dark-2 mt-1">查看学生详细信息</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-light-2 p-6">
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <div class="md:w-1/3">
+                                <div class="text-center">
+                                    <img src="https://picsum.photos/id/64/100/100" alt="学生头像" class="w-32 h-32 rounded-full mx-auto mb-4">
+                                    <h3 class="text-xl font-semibold">赵同学</h3>
+                                    <p class="text-dark-2 mt-1">软件工程1班</p>
+                                </div>
+                            </div>
+                            <div class="md:w-2/3">
+                                <h4 class="font-semibold mb-4 pb-2 border-b border-light-2">个人信息</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-dark-2 text-sm">学号</p>
+                                        <p class="font-medium">202100156</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-dark-2 text-sm">姓名</p>
+                                        <p class="font-medium">赵同学</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-dark-2 text-sm">性别</p>
+                                        <p class="font-medium">男</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-dark-2 text-sm">年龄</p>
+                                        <p class="font-medium">20岁</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-dark-2 text-sm">邮箱</p>
+                                        <p class="font-medium">zhao@example.com</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-dark-2 text-sm">手机号</p>
+                                        <p class="font-medium">13900139000</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-dark-2 text-sm">班级</p>
+                                        <p class="font-medium">软件工程1班</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-dark-2 text-sm">注册日期</p>
+                                        <p class="font-medium">2021-09-01</p>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="font-semibold mb-4 pb-2 border-b border-light-2 mt-6">已选课程</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-light-1 text-dark-2 rounded-full">数据结构</span>
+                                    <span class="px-3 py-1 bg-light-1 text-dark-2 rounded-full">Python编程</span>
+                                    <span class="px-3 py-1 bg-light-1 text-dark-2 rounded-full">操作系统</span>
+                                </div>
+                                
+                                <div class="mt-6 flex gap-3">
+                                    <button class="btn btn-outline">
+                                        <i class="fa fa-edit"></i>
+                                        <span>编辑信息</span>
+                                    </button>
+                                    <button class="btn btn-primary">
+                                        <i class="fa fa-refresh"></i>
+                                        <span>重置密码</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- 添加教师模态框 (默认隐藏) -->
+    <div id="add-teacher-modal" class="fixed inset-0 bg-dark/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md">
+            <div class="border-b border-light-2 px-6 py-4 flex items-center justify-between">
+                <h3 class="font-semibold text-lg">添加教师账号</h3>
+                <button id="close-modal" class="text-dark-2 hover:text-dark" onclick="closeAddTeacherModal()">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <form id="add-teacher-form">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-dark-2 mb-1">姓名</label>
+                            <input type="text" name="username" class="w-full px-4 py-2 rounded-lg border border-light-2 focus:outline-none focus:border-primary" placeholder="请输入教师姓名" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-dark-2 mb-1">手机号</label>
+                            <input type="tel" name="telenum" class="w-full px-4 py-2 rounded-lg border border-light-2 focus:outline-none focus:border-primary" placeholder="请输入手机号" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-dark-2 mb-1">邮箱</label>
+                            <input type="email" name="email" class="w-full px-4 py-2 rounded-lg border border-light-2 focus:outline-none focus:border-primary" placeholder="请输入邮箱地址">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-dark-2 mb-1">分配课程 <span class="text-danger">*</span></label>
+                            <div id="add-teacher-course-options" class="grid grid-cols-2 gap-2">
+                                <!-- 课程选项将通过JavaScript动态加载 -->
+                            </div>
+                            <p class="text-xs text-dark-2 mt-1">可选择多门课程</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex gap-3">
+                        <button type="button" id="cancel-add" class="flex-1 btn btn-outline" onclick="closeAddTeacherModal()">取消</button>
+                        <button type="submit" class="flex-1 btn btn-primary">创建账号</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑教师模态框 (默认隐藏) -->
+    <div id="edit-teacher-modal" class="fixed inset-0 bg-dark/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md">
+            <div class="border-b border-light-2 px-6 py-4 flex items-center justify-between">
+                <h3 class="font-semibold text-lg">编辑教师信息</h3>
+                <button class="text-dark-2 hover:text-dark" onclick="closeEditTeacherModal()">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <form id="edit-teacher-form" onsubmit="handleEditTeacher(event)">
+                    <input type="hidden" name="teacher_id" id="edit-teacher-id">
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-dark-2 mb-1">姓名</label>
+                            <input type="text" id="edit-username" class="w-full px-4 py-2 rounded-lg border border-light-2 focus:outline-none focus:border-primary" readonly>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-dark-2 mb-1">手机号</label>
+                            <input type="tel" name="telenum" id="edit-telenum" class="w-full px-4 py-2 rounded-lg border border-light-2 focus:outline-none focus:border-primary" placeholder="请输入手机号" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-dark-2 mb-1">邮箱</label>
+                            <input type="email" name="email" id="edit-email" class="w-full px-4 py-2 rounded-lg border border-light-2 focus:outline-none focus:border-primary" placeholder="请输入邮箱地址">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-dark-2 mb-1">分配课程</label>
+                            <div id="edit-teacher-course-options" class="grid grid-cols-2 gap-2">
+                                <!-- 课程选项将通过JavaScript动态加载 -->
+                            </div>
+                            <p class="text-xs text-dark-2 mt-1">可选择多门课程</p>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="mt-6 flex gap-3">
+                        <button type="button" class="flex-1 btn btn-outline" onclick="closeEditTeacherModal()">取消</button>
+                        <button type="submit" class="flex-1 btn btn-primary">保存更改</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面跳转核心函数
+        function navigateTo(pageId, param = '') {
+            // 隐藏所有页面
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 显示目标页面
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                
+                // 如果有参数，这里可以处理参数逻辑
+                if (param) {
+                    console.log(`页面 ${pageId} 接收参数: ${param}`);
+                    // 可以根据需要在这里添加处理参数的代码
+                }
+            }
+            
+            // 更新导航项选中状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === `#${pageId}`) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // 更新URL哈希
+            history.pushState(null, null, `#${pageId}`);
+            
+            // 阻止默认行为
+            return false;
+        }
+        
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('absolute');
+            sidebar.classList.toggle('h-[calc(100vh-61px)]');
+        });
+        
+        // 模态框控制
+        async function openAddTeacherModal() {
+            const modal = document.getElementById('add-teacher-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+
+            // 动态加载课程选项
+            const courseOptionsDiv = document.getElementById('add-teacher-course-options');
+            courseOptionsDiv.innerHTML = ''; // 清空现有选项
+            await loadAllCourses(); // 每次都重新加载最新课程列表，确保不显示重复课程
+            allCourses.forEach(course => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 p-2 border border-light-2 rounded-lg cursor-pointer hover:border-primary';
+                label.innerHTML = `
+                    <input type="checkbox" name="course_ids" value="${course.id}" class="rounded text-primary focus:ring-primary">
+                    <span>${course.name}</span>
+                `;
+                courseOptionsDiv.appendChild(label);
+            });
+        }
+        
+        function closeAddTeacherModal() {
+            const modal = document.getElementById('add-teacher-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+            document.getElementById('add-teacher-form').reset(); // 重置表单
+        }
+        
+        // 点击模态框外部关闭
+        document.getElementById('add-teacher-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddTeacherModal();
+            }
+        });
+        
+        // 标签页切换
+        function switchTeacherTab(index) {
+            const tabs = document.querySelectorAll('.border-b-2.border-transparent, .tab-active');
+            tabs.forEach(t => {
+                t.classList.remove('tab-active');
+                t.classList.add('text-dark-2', 'border-transparent');
+            });
+            
+            tabs[index].classList.add('tab-active');
+            tabs[index].classList.remove('text-dark-2', 'border-transparent');
+            
+            // 根据需要添加内容切换逻辑
+        }
+        
+        // 哈希变化监听
+        window.addEventListener('hashchange', function() {
+            const pageId = window.location.hash.substring(1);
+            if (pageId && document.getElementById(pageId)) {
+                navigateTo(pageId);
+            }
+        });
+        
+        // 页面加载时处理初始哈希
+        window.addEventListener('DOMContentLoaded', function() {
+            const initialHash = window.location.hash.substring(1);
+            if (initialHash && document.getElementById(initialHash)) {
+                navigateTo(initialHash);
+            } else {
+                // 默认显示仪表盘
+                navigateTo('dashboard');
+            }
+            
+            // 加载仪表盘统计数据
+            loadDashboardStats();
+        });
+
+        // 加载仪表盘统计数据
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('/api/dashboard/stats');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const data = result.data;
+                    
+                    // 更新总用户数
+                    document.getElementById('total-users').textContent = data.total_users;
+                    
+                    // 更新教师数量
+                    document.getElementById('teachers-count').textContent = data.teachers_count;
+                    
+                    // 更新学生数量
+                    document.getElementById('students-count').textContent = data.students_count;
+                    
+                    // 更新管理员数量显示为实时数据
+                    document.getElementById('monthly-new').innerHTML = 
+                        `<i class="fa fa-arrow-up mr-1"></i> 管理员: ${data.admins_count}`;
+                } else {
+                    console.error('获取统计数据失败:', result.message);
+                    // 显示错误信息
+                    document.getElementById('total-users').textContent = '错误';
+                    document.getElementById('teachers-count').textContent = '错误';
+                    document.getElementById('students-count').textContent = '错误';
+                }
+            } catch (error) {
+                console.error('获取统计数据时发生错误:', error);
+                // 显示错误信息
+                document.getElementById('total-users').textContent = '错误';
+                document.getElementById('teachers-count').textContent = '错误';
+                document.getElementById('students-count').textContent = '错误';
+            }
+        }
+
+        // 获取所有课程列表
+        let allCourses = []; // 全局变量存储所有课程
+        async function loadAllCourses() {
+            try {
+                const response = await fetch('/api/courses');
+                if (response.status === 401) {
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录以获取课程列表', 'error');
+                    return;
+                }
+                const result = await response.json();
+                if (result.success) {
+                    // 存储原始数据
+                    const rawCourses = result.data;
+                    
+                    // 对课程数据进行去重处理，确保不会显示重复课程
+                    const uniqueCourses = [];
+                    const courseNames = new Set();
+                    
+                    rawCourses.forEach(course => {
+                        // 使用课程名称作为去重的依据
+                        if (!courseNames.has(course.name)) {
+                            courseNames.add(course.name);
+                            uniqueCourses.push(course);
+                        }
+                    });
+                    
+                    allCourses = uniqueCourses;
+                    console.log('所有课程已加载并去重:', allCourses);
+                } else {
+                    console.error('获取所有课程失败:', result.message);
+                    showNotification('获取课程列表失败', 'error');
+                }
+            } catch (error) {
+                console.error('获取所有课程时发生错误:', error);
+                showNotification('网络错误，无法获取课程列表', 'error');
+            }
+        }
+
+        // 当仪表盘页面激活时重新加载数据
+        function onDashboardActivated() {
+            loadDashboardStats();
+        }
+
+        // 监听页面切换事件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 监听哈希变化，当切换到仪表盘时重新加载数据
+            window.addEventListener('hashchange', function() {
+                if (window.location.hash === '#dashboard') {
+                    loadDashboardStats();
+                } else if (window.location.hash === '#teacher-management') {
+                    loadTeachers();
+                } else if (window.location.hash === '#student-management') {
+                    loadStudents();
+                }
+            });
+
+            // 初始化教师搜索功能
+            const teacherSearchInput = document.getElementById('teacher-search');
+            if (teacherSearchInput) {
+                teacherSearchInput.addEventListener('input', debounce(function(e) {
+                    searchTeachers(e.target.value);
+                }, 300));
+            }
+
+            // 初始化学生搜索功能
+            const studentSearchInput = document.getElementById('student-search');
+            if (studentSearchInput) {
+                studentSearchInput.addEventListener('input', debounce(function(e) {
+                    searchStudents(e.target.value);
+                }, 300));
+            }
+
+            // 初始化添加教师表单
+            const addTeacherForm = document.getElementById('add-teacher-form');
+            if (addTeacherForm) {
+                addTeacherForm.addEventListener('submit', handleAddTeacher);
+            }
+
+            // 初始化添加学生表单
+            const addStudentForm = document.getElementById('add-student-form');
+            if (addStudentForm) {
+                addStudentForm.addEventListener('submit', handleAddStudent);
+            }
+        });
+
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 加载教师列表
+        async function loadTeachers() {
+            try {
+                const response = await fetch('/api/teachers');
+                
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderTeachersTable(result.data);
+                } else {
+                    console.error('获取教师列表失败:', result.message);
+                    showNotification('获取教师列表失败', 'error');
+                }
+            } catch (error) {
+                console.error('获取教师列表时发生错误:', error);
+                showNotification('网络错误，请稍后重试', 'error');
+            }
+        }
+
+        // 搜索教师
+        async function searchTeachers(query) {
+            if (!query.trim()) {
+                await loadTeachers();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/teachers/search?q=${encodeURIComponent(query)}`);
+                
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderTeachersTable(result.data);
+                } else {
+                    console.error('搜索教师失败:', result.message);
+                    showNotification('搜索教师失败', 'error');
+                }
+            } catch (error) {
+                console.error('搜索教师时发生错误:', error);
+                showNotification('搜索失败，请稍后重试', 'error');
+            }
+        }
+
+        // 渲染教师表格
+        function renderTeachersTable(teachers) {
+            const tbody = document.querySelector('#teacher-management tbody');
+            if (!tbody) return;
+
+            if (teachers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-dark-2">
+                            <i class="fa fa-users text-4xl mb-2 text-light-3"></i>
+                            <p>暂无教师数据</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = teachers.map(teacher => `
+                <tr class="hover:bg-light-1/50 transition-colors">
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-secondary/10 rounded-full flex items-center justify-center text-secondary">
+                                <i class="fa fa-user-circle-o"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">${teacher.username}</div>
+                                <div class="text-xs text-dark-2">${teacher.email || '未设置邮箱'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm">${teacher.telenum}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm">
+                        ${teacher.course_assignment || '未分配'}
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm">
+                        <div class="flex gap-2">
+                            <button class="text-primary hover:underline" onclick="editTeacher(${teacher.id})">编辑</button>
+                            <button class="text-dark-2 hover:text-primary" onclick="resetTeacherPassword(${teacher.id}, '${teacher.username}')">重置密码</button>
+                            <button class="text-danger hover:text-danger/80" onclick="deleteTeacher(${teacher.id}, '${teacher.username}')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        // 添加教师处理
+        async function handleAddTeacher(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const selectedCourseIds = Array.from(document.querySelectorAll('#add-teacher-course-options input[name="course_ids"]:checked'))
+                .map(checkbox => parseInt(checkbox.value));
+            
+            // 验证至少选择一门课程
+            if (selectedCourseIds.length === 0) {
+                showNotification('请至少选择一门课程', 'error');
+                return;
+            }
+            
+            const teacherData = {
+                username: formData.get('username'),
+                telenum: formData.get('telenum'),
+                email: formData.get('email') || null,
+                course_ids: selectedCourseIds  // 直接传递课程ID数组
+            };
+
+            // 简单验证
+            if (!teacherData.username || !teacherData.telenum) {
+                showNotification('请填写姓名和手机号', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/teachers/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(teacherData)
+                });
+
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('教师添加成功', 'success');
+                    closeAddTeacherModal();
+                    event.target.reset();
+                    await loadTeachers();
+                } else {
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification(result.message || '添加教师失败', 'error');
+                }
+            } catch (error) {
+                console.error('添加教师时发生错误:', error);
+                showNotification('网络错误，请稍后重试', 'error');
+            }
+        }
+
+        // 编辑教师
+        async function editTeacher(teacherId) {
+            try {
+                // 获取教师详细信息
+                const response = await fetch(`/api/teachers/${teacherId}`);
+                
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const teacher = result.data;
+                    openEditTeacherModal(teacher);
+                } else {
+                    showNotification('获取教师信息失败', 'error');
+                }
+            } catch (error) {
+                console.error('获取教师信息时发生错误:', error);
+                showNotification('网络错误，请稍后重试', 'error');
+            }
+        }
+        
+        // 打开编辑教师模态框
+        async function openEditTeacherModal(teacher) {
+            const modal = document.getElementById('edit-teacher-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            
+            // 填充表单数据
+            document.getElementById('edit-teacher-id').value = teacher.id;
+            document.getElementById('edit-username').value = teacher.username;
+            document.getElementById('edit-telenum').value = teacher.telenum;
+            document.getElementById('edit-email').value = teacher.email || '';
+            
+            // 动态加载课程选项并设置已分配课程
+            const courseOptionsDiv = document.getElementById('edit-teacher-course-options');
+            courseOptionsDiv.innerHTML = ''; // 清空现有选项
+            await loadAllCourses(); // 每次都重新加载最新课程列表，确保不显示重复课程
+
+            // 获取教师已分配的课程ID
+            let assignedCourseIds = [];
+            try {
+                const response = await fetch(`/api/teachers/${teacher.id}/courses`);
+                if (response.status === 401) {
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录以获取教师课程', 'error');
+                    return;
+                }
+                const result = await response.json();
+                if (result.success) {
+                    assignedCourseIds = result.data.map(c => c.id);
+                } 
+            } catch (error) {
+                console.error('获取教师已分配课程时发生错误:', error);
+                showNotification('网络错误，无法获取教师已分配课程', 'error');
+            }
+
+            allCourses.forEach(course => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 p-2 border border-light-2 rounded-lg cursor-pointer hover:border-primary';
+                label.innerHTML = `
+                    <input type="checkbox" name="course_ids" value="${course.id}" class="rounded text-primary focus:ring-primary">
+                    <span>${course.name}</span>
+                `;
+                const checkbox = label.querySelector('input[type="checkbox"]');
+                if (assignedCourseIds.includes(course.id)) {
+                    checkbox.checked = true;
+                }
+                courseOptionsDiv.appendChild(label);
+            });
+            
+            // 设置状态选择
+            const statusSelect = document.getElementById('edit-status');
+            statusSelect.value = teacher.status || '允许';
+        }
+        
+        // 关闭编辑教师模态框
+        function closeEditTeacherModal() {
+            const modal = document.getElementById('edit-teacher-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+            document.getElementById('edit-teacher-form').reset(); // 重置表单
+        }
+        
+        // 处理编辑教师表单提交
+        async function handleEditTeacher(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const teacherId = formData.get('teacher_id');
+            const selectedCourseIds = Array.from(document.querySelectorAll('#edit-teacher-course-options input[name="course_ids"]:checked'))
+                .map(checkbox => parseInt(checkbox.value));
+            
+            const teacherData = {
+                telenum: formData.get('telenum'),
+                email: formData.get('email') || null,
+                status: formData.get('status') || 'active'
+            };
+            
+            // 简单验证
+            if (!teacherData.telenum) {
+                showNotification('请填写手机号', 'error');
+                return;
+            }
+            
+            try {
+                // 先更新教师基本信息
+                const infoResponse = await fetch(`/api/teachers/${teacherId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(teacherData)
+                });
+                
+                // 检查HTTP状态码
+                if (infoResponse.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await infoResponse.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+                
+                const infoResult = await infoResponse.json();
+                
+                if (!infoResult.success) {
+                    showNotification(infoResult.message || '更新教师基本信息失败', 'error');
+                    return;
+                }
+                
+                // 然后更新课程分配
+                const courseResponse = await fetch(`/api/teachers/${teacherId}/assign-courses`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ course_ids: selectedCourseIds })
+                });
+                
+                const courseResult = await courseResponse.json();
+                
+                if (courseResult.success) {
+                    showNotification('教师信息更新成功', 'success');
+                    closeEditTeacherModal();
+                    await loadTeachers();
+                } else {
+                    showNotification(courseResult.message || '更新课程分配失败', 'error');
+                }
+            } catch (error) {
+                console.error('更新教师信息时发生错误:', error);
+                showNotification('网络错误，请稍后重试', 'error');
+            }
+        }
+
+        // 重置教师密码
+        async function resetTeacherPassword(teacherId, username) {
+            if (!confirm(`确定要重置教师 "${username}" 的密码吗？密码将重置为默认密码 '123456'。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/teachers/${teacherId}/reset-password`, {
+                    method: 'POST'
+                });
+
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('密码重置成功', 'success');
+                } else {
+                    showNotification(result.message || '密码重置失败', 'error');
+                }
+            } catch (error) {
+                console.error('重置密码时发生错误:', error);
+                showNotification('网络错误，请稍后重试', 'error');
+            }
+        }
+
+        // 删除教师
+        async function deleteTeacher(teacherId, username) {
+            if (!confirm(`确定要删除教师 "${username}" 吗？此操作不可恢复。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/teachers/${teacherId}`, {
+                    method: 'DELETE'
+                });
+
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('教师删除成功', 'success');
+                    await loadTeachers();
+                } else {
+                    showNotification(result.message || '删除教师失败', 'error');
+                }
+            } catch (error) {
+                console.error('删除教师时发生错误:', error);
+                showNotification('网络错误，请稍后重试', 'error');
+            }
+        }
+
+        // 学生管理功能
+        // 加载学生列表
+        async function loadStudents() {
+            try {
+                const response = await fetch('/api/students');
+                
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderStudentsTable(result.data);
+                } else {
+                    console.error('获取学生列表失败:', result.message);
+                    showNotification('获取学生列表失败', 'error');
+                }
+            } catch (error) {
+                console.error('获取学生列表时发生错误:', error);
+                showNotification('网络错误，请稍后重试', 'error');
+            }
+        }
+
+        // 搜索学生
+        async function searchStudents(query) {
+            if (!query.trim()) {
+                await loadStudents();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/students/search?q=${encodeURIComponent(query)}`);
+                
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderStudentsTable(result.data);
+                } else {
+                    console.error('搜索学生失败:', result.message);
+                    showNotification('搜索学生失败', 'error');
+                }
+            } catch (error) {
+                console.error('搜索学生时发生错误:', error);
+                showNotification('搜索失败，请稍后重试', 'error');
+            }
+        }
+
+        // 渲染学生表格
+        function renderStudentsTable(students) {
+            const tbody = document.querySelector('#student-management tbody');
+            if (!tbody) return;
+
+            if (students.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-dark-2">
+                            <i class="fa fa-graduation-cap text-4xl mb-2 text-light-3"></i>
+                            <p>暂无学生数据</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = students.map(student => `
+                <tr class="hover:bg-light-1/50 transition-colors">
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-success/10 rounded-full flex items-center justify-center text-success">
+                                <i class="fa fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">${student.username}</div>
+                                <div class="text-xs text-dark-2">${student.email || '未设置邮箱'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm">${student.telenum}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm">
+                        ${student.student_id || '未分配'}
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm">
+                        ${student.course_assignment || '未分配'}
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm">
+                        <div class="flex gap-2">
+                            <button class="text-primary hover:underline" onclick="editStudent(${student.id})">编辑</button>
+                            <button class="text-dark-2 hover:text-primary" onclick="resetStudentPassword(${student.id}, '${student.username}')">重置密码</button>
+                            <button class="text-danger hover:text-danger/80" onclick="deleteStudent(${student.id}, '${student.username}')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 打开添加学生模态框
+        function openAddStudentModal() {
+            // 这里可以添加打开添加学生模态框的逻辑
+            showNotification('添加学生功能正在开发中', 'info');
+        }
+
+        // 处理添加学生表单提交
+        async function handleAddStudent(event) {
+            event.preventDefault();
+            // 这里可以添加处理添加学生表单提交的逻辑
+            showNotification('添加学生功能正在开发中', 'info');
+        }
+
+        // 编辑学生
+        async function editStudent(studentId) {
+            try {
+                // 获取学生详细信息
+                const response = await fetch(`/api/students/${studentId}`);
+                
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const student = result.data;
+                    // 这里可以添加打开编辑学生模态框的逻辑
+                    showNotification(`编辑学生: ${student.username}`, 'info');
+                } else {
+                    showNotification(result.message || '获取学生信息失败', 'error');
+                }
+            } catch (error) {
+                console.error('获取学生信息时发生错误:', error);
+                showNotification('网络错误，请稍后重试', 'error');
+            }
+        }
+
+        // 重置学生密码
+        async function resetStudentPassword(studentId, username) {
+            if (!confirm(`确定要重置学生 "${username}" 的密码吗？密码将重置为学号。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/students/${studentId}/reset-password`, {
+                    method: 'POST'
+                });
+
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('密码重置成功', 'success');
+                } else {
+                    showNotification(result.message || '密码重置失败', 'error');
+                }
+            } catch (error) {
+                console.error('重置密码时发生错误:', error);
+                showNotification('网络错误，请稍后重试', 'error');
+            }
+        }
+
+        // 删除学生
+        async function deleteStudent(studentId, username) {
+            if (!confirm(`确定要删除学生 "${username}" 吗？此操作不可恢复。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/students/${studentId}`, {
+                    method: 'DELETE'
+                });
+
+                // 检查HTTP状态码
+                if (response.status === 401) {
+                    // 未授权，需要重新登录
+                    const result = await response.json();
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                        return;
+                    }
+                    showNotification('请重新登录', 'error');
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('学生删除成功', 'success');
+                    await loadStudents();
+                } else {
+                    showNotification(result.message || '删除学生失败', 'error');
+                }
+            } catch (error) {
+                console.error('删除学生时发生错误:', error);
+                showNotification('网络错误，请稍后重试', 'error');
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            // 简单的通知实现
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-success text-white' :
+                type === 'error' ? 'bg-danger text-white' :
+                type === 'warning' ? 'bg-warning text-white' :
+                'bg-primary text-white'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

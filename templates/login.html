@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线测评系统 - 登录</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>在线测评系统</h1>
+            <p>请选择身份并登录</p>
+        </div>
+        
+        <form class="login-form" action="{{ url_for('login') }}" method="POST">
+            <!-- 身份选择框 -->
+            <div class="form-group">
+                <label for="role">身份选择</label>
+                <select name="role" id="role" required>
+                    <option value="">请选择身份</option>
+                    <option value="teacher">教师</option>
+                    <option value="student">学生</option>
+                    <option value="admin">管理员</option>
+                </select>
+            </div>
+            
+            <!-- 用户名 -->
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" name="username" id="username" required placeholder="请输入用户名">
+            </div>
+            
+            <!-- 密码 -->
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" name="password" id="password" required placeholder="请输入密码">
+            </div>
+            
+            <!-- 验证码 -->
+            <div class="form-group">
+                <label for="captcha">验证码</label>
+                <div class="captcha-container">
+                    <input type="text" name="captcha" id="captcha" required placeholder="请输入验证码">
+                    <img src="https://www.oschina.net/action/user/captcha" alt="验证码" onclick="this.src='https://www.oschina.net/action/user/captcha?t='+ new Date().getTime();">
+                </div>
+            </div>
+            
+            <!-- 记住密码 -->
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" name="remember">
+                    <span>记住密码</span>
+                </label>
+                <a href="{{ url_for('forgot_password') }}" class="forgot-password">忘记密码？</a>
+            </div>
+            
+            <!-- 登录按钮 -->
+            <button type="submit" class="login-btn">登录</button>
+        </form>
+        
+        <div class="login-footer">
+            <p>还没有账号？<a href="{{ url_for('register') }}">立即注册</a></p>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>

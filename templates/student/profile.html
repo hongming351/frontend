@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人信息 - 智能OJ系统学生端</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        success: '#52C41A',
+                        warning: '#FAAD14',
+                        danger: '#FF4D4F',
+                        dark: '#1D2129',
+                        'dark-2': '#4E5969',
+                        'light-1': '#F2F3F5',
+                        'light-2': '#E5E6EB',
+                        'light-3': '#C9CDD4'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .nav-item {
+                @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-primary/10 text-dark-2;
+            }
+            .nav-item.active {
+                @apply bg-primary/10 text-primary font-medium;
+            }
+            .card {
+                @apply bg-white rounded-xl shadow-sm border border-light-2 overflow-hidden transition-shadow hover:shadow-md;
+            }
+            .btn {
+                @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2;
+            }
+            .btn-primary {
+                @apply bg-primary text-white hover:bg-primary/90 active:bg-primary/80;
+            }
+            .btn-outline {
+                @apply border border-light-3 hover:border-primary hover:text-primary;
+            }
+            .form-input {
+                @apply w-full px-4 py-2 border border-light-2 rounded-lg focus:outline-none focus:border-primary transition-colors;
+            }
+            .form-label {
+                @apply block text-sm font-medium text-dark-2 mb-1;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light-1 text-dark min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white border-b border-light-2 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <a href="/student/dashboard" class="p-2 rounded-md hover:bg-light-1">
+                    <i class="fa fa-arrow-left text-dark-2"></i>
+                </a>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                        <i class="fa fa-code"></i>
+                    </div>
+                    <h1 class="text-xl font-semibold text-dark hidden sm:block">智能OJ系统-学生端</h1>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 group">
+                    <img src="https://picsum.photos/id/64/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border border-light-2">
+                    <span class="text-sm font-medium hidden sm:block">{{ user.username }}</span>
+                    <i class="fa fa-angle-down text-light-3 text-xs transition-transform group-hover:rotate-180"></i>
+                    
+                    <!-- 用户菜单 -->
+                    <div class="absolute right-4 mt-14 w-48 bg-white rounded-lg shadow-lg border border-light-2 py-2 hidden group-hover:block z-50">
+                        <a href="/student/profile" class="block px-4 py-2 text-sm hover:bg-light-1 transition-colors">
+                            <i class="fa fa-user-o mr-2 text-light-3"></i>个人资料
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-sm hover:bg-light-1 transition-colors" onclick="navigateTo('password-reset-self')">
+                            <i class="fa fa-key mr-2 text-light-3"></i>修改密码
+                        </a>
+                        <div class="border-t border-light-2 my-1"></div>
+                        <a href="/logout" class="block px-4 py-2 text-sm text-danger hover:bg-light-1 transition-colors">
+                            <i class="fa fa-sign-out mr-2"></i>退出登录
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-semibold">个人信息</h2>
+                    <p class="text-dark-2 mt-1">查看和编辑您的个人信息</p>
+                </div>
+            </div>
+            
+            <div class="card p-6">
+                <div class="max-w-2xl mx-auto">
+                    <div class="text-center mb-8">
+                        <img src="https://picsum.photos/id/64/100/100" alt="学生头像" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-light-2">
+                        <h3 class="text-xl font-semibold">{{ user.username }}</h3>
+                        <p class="text-dark-2">学生</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-dark mb-4 pb-2 border-b border-light-2">基本信息</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-sm text-dark-2 mb-1">用户名</p>
+                                    <p class="font-medium">{{ user.username }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-dark-2 mb-1">学号</p>
+                                    <p class="font-medium" id="student-id">{{ user.student_id if user.student_id else '未设置' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-dark-2 mb-1">手机号</p>
+                                    <p class="font-medium">{{ user.telenum if user.telenum else '未设置' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-dark-2 mb-1">邮箱</p>
+                                    <p class="font-medium">{{ user.email if user.email else '未设置' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-dark mb-4 pb-2 border-b border-light-2">账户信息</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-sm text-dark-2 mb-1">用户ID</p>
+                                    <p class="font-medium">{{ user.id }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-dark-2 mb-1">身份</p>
+                                    <p class="font-medium">学生</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-dark-2 mb-1">注册时间</p>
+                                    <p class="font-medium">{{ user.created_at if user.created_at else '未知' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-dark-2 mb-1">状态</p>
+                                    <span class="px-2 py-1 text-xs rounded-full bg-success/10 text-success">正常</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-light-2">
+                        <h4 class="font-semibold text-dark mb-4">操作</h4>
+                        <div class="flex gap-3">
+                            <button class="btn btn-outline" onclick="openEditModal()">
+                                <i class="fa fa-edit"></i>
+                                <span>编辑信息</span>
+                            </button>
+                            <button class="btn btn-outline" onclick="navigateTo('password-reset-self')">
+                                <i class="fa fa-key"></i>
+                                <span>修改密码</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 修改密码模态框 -->
+    <div id="password-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md">
+            <div class="p-6 border-b border-light-2">
+                <h3 class="text-lg font-semibold text-dark">修改密码</h3>
+                <p class="text-sm text-dark-2 mt-1">请输入原密码和新密码</p>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <!-- 错误信息显示 -->
+                <div id="password-error" class="hidden bg-danger/10 border border-danger/20 text-danger px-4 py-2 rounded-lg text-sm">
+                </div>
+
+                <div>
+                    <label class="form-label">原密码</label>
+                    <input type="password" id="old-password" class="form-input" placeholder="请输入原密码">
+                </div>
+
+                <div>
+                    <label class="form-label">新密码</label>
+                    <input type="password" id="new-password" class="form-input" placeholder="请输入新密码（至少6位）">
+                </div>
+
+                <div>
+                    <label class="form-label">确认新密码</label>
+                    <input type="password" id="confirm-password" class="form-input" placeholder="请再次输入新密码">
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-light-2 flex justify-end gap-3">
+                <button class="btn btn-outline" onclick="closePasswordModal()">取消</button>
+                <button class="btn btn-primary" onclick="submitPasswordChange()">
+                    <i class="fa fa-save"></i>
+                    <span>修改密码</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑信息模态框 -->
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md">
+            <div class="p-6 border-b border-light-2">
+                <h3 class="text-lg font-semibold text-dark">编辑个人信息</h3>
+                <p class="text-sm text-dark-2 mt-1">更新您的个人信息</p>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="form-label">邮箱</label>
+                    <input type="email" id="edit-email" class="form-input" placeholder="请输入邮箱地址" value="{{ user.email if user.email else '' }}">
+                </div>
+                
+                <div>
+                    <label class="form-label">手机号</label>
+                    <input type="tel" id="edit-telenum" class="form-input" placeholder="请输入手机号" value="{{ user.telenum if user.telenum else '' }}">
+                </div>
+                
+                <div>
+                    <label class="form-label">学号</label>
+                    <input type="text" id="edit-student-id" class="form-input" placeholder="请输入学号" value="{{ user.student_id if user.student_id else '' }}">
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-light-2 flex justify-end gap-3">
+                <button class="btn btn-outline" onclick="closeEditModal()">取消</button>
+                <button class="btn btn-primary" onclick="submitEdit()">保存更改</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后获取学生详细信息
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch('/api/students/profile');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        // 更新页面显示的学生信息
+                        updateStudentInfo(result.data);
+                    }
+                }
+            } catch (error) {
+                console.error('获取学生信息失败:', error);
+            }
+        });
+
+        // 更新学生信息显示
+        function updateStudentInfo(studentData) {
+            if (studentData.student_id) {
+                document.getElementById('student-id').textContent = studentData.student_id;
+            }
+            // 可以根据需要更新其他字段
+        }
+
+        // 打开编辑模态框
+        function openEditModal() {
+            // 填充当前信息到表单
+            document.getElementById('edit-email').value = '{{ user.email if user.email else "" }}';
+            document.getElementById('edit-telenum').value = '{{ user.telenum if user.telenum else "" }}';
+            document.getElementById('edit-student-id').value = '{{ user.student_id if user.student_id else "" }}';
+            
+            // 显示模态框
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        // 关闭编辑模态框
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        // 提交编辑信息
+        async function submitEdit() {
+            const formData = {
+                email: document.getElementById('edit-email').value.trim(),
+                telenum: document.getElementById('edit-telenum').value.trim(),
+                student_id: document.getElementById('edit-student-id').value.trim()
+            };
+
+            // 简单的表单验证
+            if (formData.telenum && !/^1[3-9]\d{9}$/.test(formData.telenum)) {
+                alert('请输入有效的手机号码');
+                return;
+            }
+
+            if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+                alert('请输入有效的邮箱地址');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/students/update-profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrf_token')
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('个人信息更新成功');
+                    closeEditModal();
+                    // 重新加载页面以更新显示
+                    location.reload();
+                } else {
+                    alert(result.message || '更新失败，请重试');
+                }
+            } catch (error) {
+                console.error('更新个人信息失败:', error);
+                alert('网络错误，请重试');
+            }
+        }
+
+        // 获取Cookie的辅助函数
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return '';
+        }
+
+        // 用户菜单导航功能
+        function navigateTo(page) {
+            switch(page) {
+                case 'password-reset-self':
+                    openPasswordModal();
+                    break;
+                default:
+                    console.log('未知的导航目标:', page);
+            }
+        }
+
+        // 打开修改密码模态框
+        function openPasswordModal() {
+            // 清空表单
+            document.getElementById('old-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+
+            // 隐藏错误信息
+            document.getElementById('password-error').classList.add('hidden');
+            document.getElementById('password-error').textContent = '';
+
+            // 显示模态框
+            document.getElementById('password-modal').classList.remove('hidden');
+        }
+
+        // 关闭修改密码模态框
+        function closePasswordModal() {
+            document.getElementById('password-modal').classList.add('hidden');
+        }
+
+        // 显示错误信息
+        function showPasswordError(message) {
+            const errorDiv = document.getElementById('password-error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        // 隐藏错误信息
+        function hidePasswordError() {
+            document.getElementById('password-error').classList.add('hidden');
+        }
+
+        // 提交修改密码
+        async function submitPasswordChange() {
+            const oldPassword = document.getElementById('old-password').value.trim();
+            const newPassword = document.getElementById('new-password').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value.trim();
+
+            // 表单验证
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                showPasswordError('请填写所有字段');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showPasswordError('新密码长度不能少于6位');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showPasswordError('新密码和确认密码不一致');
+                return;
+            }
+
+            if (newPassword === oldPassword) {
+                showPasswordError('新密码不能与原密码相同');
+                return;
+            }
+
+            hidePasswordError();
+
+            try {
+                const response = await fetch('/api/students/change-password', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrf_token')
+                    },
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword,
+                        confirm_password: confirmPassword
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    closePasswordModal();
+                    // 如果需要重新登录，重定向到登录页面
+                    if (result.logout_required) {
+                        window.location.href = '/logout';
+                    }
+                } else {
+                    showPasswordError(result.message || '修改密码失败');
+                }
+            } catch (error) {
+                console.error('修改密码失败:', error);
+                showPasswordError('网络错误，请重试');
+            }
+        }
+
+        // 模态框点击外部关闭
+        document.addEventListener('DOMContentLoaded', function() {
+            // 编辑模态框点击外部关闭
+            const editModal = document.getElementById('edit-modal');
+            if (editModal) {
+                editModal.addEventListener('click', function(e) {
+                    if (e.target === editModal) {
+                        closeEditModal();
+                    }
+                });
+            }
+
+            // 修改密码模态框点击外部关闭
+            const passwordModal = document.getElementById('password-modal');
+            if (passwordModal) {
+                passwordModal.addEventListener('click', function(e) {
+                    if (e.target === passwordModal) {
+                        closePasswordModal();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+/* 注册页面样式 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-color);
+}
+
+.container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.register-container {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    padding: 50px;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-large);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: gentleFadeIn 0.8s ease-out;
+}
+
+/* 注册页面的独特动画 */
+@keyframes gentleFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.register-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.register-header h1 {
+    color: var(--dark-color);
+    margin-bottom: 15px;
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleSlideIn 0.8s ease-out;
+}
+
+.register-header p {
+    color: var(--light-gray);
+    font-size: 1.2rem;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+    animation: titleSlideIn 0.8s ease-out 0.1s both;
+}
+
+/* 注册页面独特的标题动画 */
+@keyframes titleSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.register-form .form-group {
+    margin-bottom: 25px;
+}
+
+.register-form label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--dark-color);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+}
+
+.register-form input,
+.register-form select {
+    width: 100%;
+    padding: 18px 22px;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-large);
+    font-size: 16px;
+    transition: var(--transition);
+    background-color: var(--white-color);
+    font-weight: 400;
+    color: var(--dark-color);
+    box-sizing: border-box;
+}
+
+.register-form input::placeholder {
+    color: var(--light-gray);
+    font-weight: 400;
+}
+
+.register-form input:focus,
+.register-form select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px var(--primary-light), 0 6px 16px rgba(74, 107, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.register-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, var(--success-color), #28a745);
+    color: var(--white-color);
+    border: none;
+    border-radius: var(--radius-large);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4), 0 4px 12px rgba(40, 167, 69, 0.2);
+    margin-top: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s;
+}
+
+.register-btn:hover::before {
+    left: 100%;
+}
+
+.register-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(40, 167, 69, 0.5), 0 8px 20px rgba(40, 167, 69, 0.3);
+    background: linear-gradient(135deg, #218838, #1e7e34);
+}
+
+.register-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4), 0 4px 10px rgba(40, 167, 69, 0.2);
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px solid var(--border-light);
+}
+
+.form-footer p {
+    color: var(--light-gray);
+    margin: 0;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.form-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition-fast);
+    border-bottom: 2px solid transparent;
+}
+
+.form-footer a:hover {
+    color: var(--primary-dark);
+    border-bottom-color: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+/* 验证提示样式 */
+.field-tip {
+    font-size: 0.9rem;
+    margin-top: 8px;
+    padding: 6px 12px;
+    border-radius: var(--radius-medium);
+    font-weight: 500;
+    display: inline-block;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.field-tip.success {
+    color: var(--success-color);
+    background-color: rgba(39, 174, 96, 0.1);
+    border: 2px solid rgba(39, 174, 96, 0.2);
+}
+
+.field-tip.error {
+    color: var(--error-color);
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 2px solid rgba(231, 76, 60, 0.2);
+}
+
+.password-strength,
+.password-confirm-tip {
+    font-size: 0.9rem;
+    margin-top: 8px;
+    padding: 6px 12px;
+    border-radius: var(--radius-medium);
+    font-weight: 500;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.password-strength.weak {
+    color: var(--error-color);
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 2px solid rgba(231, 76, 60, 0.2);
+}
+
+.password-strength.medium {
+    color: var(--warning-color);
+    background-color: rgba(243, 156, 18, 0.1);
+    border: 2px solid rgba(243, 156, 18, 0.2);
+}
+
+.password-strength.strong {
+    color: var(--success-color);
+    background-color: rgba(39, 174, 96, 0.1);
+    border: 2px solid rgba(39, 174, 96, 0.2);
+}
+
+.password-confirm-tip.error {
+    color: var(--error-color);
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 2px solid rgba(231, 76, 60, 0.2);
+}
+
+.field-error {
+    font-size: 0.9rem;
+    margin-top: 8px;
+    color: var(--error-color);
+    font-weight: 500;
+    display: block;
+    animation: shake 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* 输入框错误状态 */
+.register-form input.error,
+.register-form select.error {
+    border-color: var(--error-color);
+    background-color: rgba(231, 76, 60, 0.05);
+    animation: shake 0.3s ease-in-out;
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+    .register-container {
+        margin: 20px;
+        padding: 40px 30px;
+    }
+
+    .register-header h1 {
+        font-size: 2.1rem;
+    }
+
+    .register-header p {
+        font-size: 1.1rem;
+    }
+
+    .register-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .register-form input,
+    .register-form select {
+        padding: 16px 18px;
+        font-size: 15px;
+    }
+
+    .register-btn {
+        padding: 16px;
+        font-size: 17px;
+    }
+}

@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>答题 - 智能OJ系统学生端</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CodeMirror 代码高亮编辑器 (使用国内CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/lib/codemirror.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/theme/default.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/lib/codemirror.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/mode/clike/clike.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.2/mode/python/python.min.js"></script>
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        success: '#52C41A',
+                        warning: '#FAAD14',
+                        danger: '#FF4D4F',
+                        dark: '#1D2129',
+                        'dark-2': '#4E5969',
+                        'light-1': '#F2F3F5',
+                        'light-2': '#E5E6EB',
+                        'light-3': '#C9CDD4'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .nav-item {
+                @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-primary/10 text-dark-2;
+            }
+            .nav-item.active {
+                @apply bg-primary/10 text-primary font-medium;
+            }
+            .card {
+                @apply bg-white rounded-xl shadow-sm border border-light-2 overflow-hidden transition-shadow hover:shadow-md;
+            }
+            .btn {
+                @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2;
+            }
+            .btn-primary {
+                @apply bg-primary text-white hover:bg-primary/90 active:bg-primary/80;
+            }
+            .btn-outline {
+                @apply border border-light-3 hover:border-primary hover:text-primary;
+            }
+            .code-editor {
+                font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+                font-size: 14px;
+                line-height: 1.5;
+                tab-size: 4;
+                background: #1e1e1e; /* 深色背景 */
+                color: #d4d4d4; /* 默认文本颜色 */
+            }
+
+            .code-editor::placeholder {
+                color: #858585; /* 占位符颜色 */
+            }
+
+            .code-editor:focus {
+                outline: none;
+                box-shadow: none;
+            }
+
+            /* CodeMirror 自定义样式 - 深色主题，适合代码高亮 */
+            .CodeMirror {
+                font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+                font-size: 14px;
+                line-height: 1.5;
+                border: none;
+                background: #1e1e1e; /* 深灰黑色背景，最适合代码高亮 */
+                color: #d4d4d4; /* 默认文本颜色 */
+            }
+
+            .CodeMirror-gutters {
+                background: #252526; /* 行号区域背景 */
+                border-right: 1px solid #3e3e42;
+                color: #858585; /* 行号颜色 */
+            }
+
+            .CodeMirror-linenumber {
+                color: #858585;
+                padding: 0 8px;
+            }
+
+            .CodeMirror-cursor {
+                border-left: 1px solid #0078d4; /* 蓝色光标 */
+            }
+
+            .CodeMirror-focused .CodeMirror-selected {
+                background: rgba(0, 120, 212, 0.3); /* 聚焦时的选中背景 */
+            }
+
+            .CodeMirror-selected {
+                background: rgba(0, 120, 212, 0.2); /* 普通选中背景 */
+            }
+
+            /* 语法高亮颜色 */
+            .CodeMirror .cm-keyword { color: #569cd6; } /* 关键字 */
+            .CodeMirror .cm-atom { color: #569cd6; } /* 原子值 */
+            .CodeMirror .cm-number { color: #b5cea8; } /* 数字 */
+            .CodeMirror .cm-def { color: #9cdcfe; } /* 定义 */
+            .CodeMirror .cm-variable { color: #9cdcfe; } /* 变量 */
+            .CodeMirror .cm-punctuation { color: #d4d4d4; } /* 标点 */
+            .CodeMirror .cm-property { color: #9cdcfe; } /* 属性 */
+            .CodeMirror .cm-operator { color: #d4d4d4; } /* 操作符 */
+            .CodeMirror .cm-variable-2 { color: #4ec9b0; } /* 变量2 */
+            .CodeMirror .cm-variable-3 { color: #dcdcaa; } /* 变量3 */
+            .CodeMirror .cm-type { color: #4ec9b0; } /* 类型 */
+            .CodeMirror .cm-comment { color: #6a9955; } /* 注释 */
+            .CodeMirror .cm-string { color: #ce9178; } /* 字符串 */
+            .CodeMirror .cm-string-2 { color: #ce9178; } /* 字符串2 */
+            .CodeMirror .cm-meta { color: #d4d4d4; } /* 元信息 */
+            .CodeMirror .cm-qualifier { color: #d4d4d4; } /* 限定符 */
+            .CodeMirror .cm-builtin { color: #dcdcaa; } /* 内置函数 */
+            .CodeMirror .cm-bracket { color: #d4d4d4; } /* 括号 */
+            .CodeMirror .cm-tag { color: #569cd6; } /* 标签 */
+            .CodeMirror .cm-attribute { color: #9cdcfe; } /* 属性 */
+            .CodeMirror .cm-hr { color: #d4d4d4; } /* 水平线 */
+            .CodeMirror .cm-link { color: #ce9178; } /* 链接 */
+
+            /* 匹配括号高亮 */
+            .CodeMirror-matchingbracket {
+                background: rgba(0, 120, 212, 0.3);
+                color: #fff !important;
+            }
+
+            /* 错误标记 */
+            .CodeMirror .cm-error {
+                background: rgba(255, 0, 0, 0.2);
+                color: #ff6b6b;
+            }
+
+            /* 滚动条样式优化 */
+            .CodeMirror-vscrollbar,
+            .CodeMirror-hscrollbar {
+                background: #252526;
+            }
+
+            .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+            .CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+                background: #3e3e42;
+                border-radius: 4px;
+            }
+
+            .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+            .CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
+                background: #4e4e52;
+            }
+
+            /* 代码折叠样式 */
+            .CodeMirror-foldmarker {
+                color: #858585;
+                background: rgba(0, 120, 212, 0.1);
+                border-radius: 2px;
+                padding: 0 4px;
+                margin: 0 2px;
+                cursor: pointer;
+            }
+
+            .CodeMirror-foldmarker:hover {
+                background: rgba(0, 120, 212, 0.2);
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-light-1 text-dark min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white border-b border-light-2 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <button onclick="goBack()" class="p-2 rounded-md hover:bg-light-1">
+                    <i class="fa fa-arrow-left text-dark-2"></i>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                        <i class="fa fa-code"></i>
+                    </div>
+                    <h1 class="text-xl font-semibold text-dark hidden sm:block">智能OJ系统-学生端</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-sm text-dark-2">
+                    <i class="fa fa-clock-o text-warning"></i>
+                    <span>剩余时间: <span id="time-remaining">00:00:00</span></span>
+                </div>
+
+                <button class="p-2 rounded-full hover:bg-light-1 relative">
+                    <i class="fa fa-bell-o text-dark-2"></i>
+                </button>
+
+                <div class="flex items-center gap-2 group">
+                    <img src="https://picsum.photos/id/64/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border border-light-2">
+                    <span class="text-sm font-medium hidden sm:block">{{ user.username }}</span>
+                    <i class="fa fa-angle-down text-light-3 text-xs transition-transform group-hover:rotate-180"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- 题目信息侧边栏 -->
+        <aside class="w-80 bg-white border-r border-light-2 flex-shrink-0 overflow-y-auto">
+            <div class="h-full flex flex-col">
+                <div class="p-4 border-b border-light-2">
+                    <h3 class="font-semibold text-dark flex items-center gap-2">
+                        <i class="fa fa-info-circle text-primary"></i>
+                        题目信息
+                    </h3>
+                </div>
+
+                <div class="flex-1 p-4 space-y-4">
+                    <div id="problem-info">
+                        <!-- 题目信息将由JavaScript动态加载 -->
+                        <div class="text-center py-8 text-dark-2">
+                            <div class="w-12 h-12 bg-light-1 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fa fa-spinner fa-spin text-2xl text-light-3"></i>
+                            </div>
+                            <p class="text-sm">加载题目信息中...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主答题区域 -->
+        <main class="flex-1 overflow-y-auto p-6">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <!-- 题目描述区域 -->
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold text-dark" id="problem-title">加载中...</h2>
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm" id="problem-type">编程题</span>
+                            <span class="px-3 py-1 bg-warning/10 text-warning rounded-full text-sm" id="problem-difficulty">中等</span>
+                        </div>
+                    </div>
+
+                    <div class="prose max-w-none">
+                        <div class="mb-4">
+                            <h4 class="font-medium text-dark mb-2">题目描述</h4>
+                            <p class="text-dark-2 leading-relaxed" id="problem-description">加载中...</p>
+                        </div>
+
+                        <!-- 编程题特有区域 -->
+                        <div id="programming-section" class="hidden">
+                            <div class="mb-4">
+                                <h4 class="font-medium text-dark mb-2">输入说明</h4>
+                                <p class="text-dark-2" id="input-description">无</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <h4 class="font-medium text-dark mb-2">输出说明</h4>
+                                <p class="text-dark-2" id="output-description">无</p>
+                            </div>
+
+                            <!-- 提示信息 -->
+                            <div class="mb-4">
+                                <div class="bg-light-1 p-4 rounded-lg">
+                                    <p class="text-sm text-dark-2">请根据题目描述编写代码，注意输入输出格式要求。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 选择题特有区域 -->
+                        <div id="choice-section" class="hidden">
+                            <div class="mb-4">
+                                <h4 class="font-medium text-dark mb-2">选项</h4>
+                                <div class="space-y-3" id="choice-options">
+                                    <!-- 选项将动态加载 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 判断题特有区域 -->
+                        <div id="judgment-section" class="hidden">
+                            <div class="mb-4">
+                                <h4 class="font-medium text-dark mb-2">请选择答案</h4>
+                                <div class="space-y-3" id="judgment-options">
+                                    <label class="flex items-center gap-3 p-3 rounded-lg border border-light-2 hover:border-primary cursor-pointer">
+                                        <input type="radio" name="judgment-answer" value="true" class="text-primary">
+                                        <span class="text-dark">正确</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 rounded-lg border border-light-2 hover:border-primary cursor-pointer">
+                                        <input type="radio" name="judgment-answer" value="false" class="text-primary">
+                                        <span class="text-dark">错误</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 编程题测试用例区域 -->
+                <div id="sample-test-case-section" class="card p-6 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-dark">示例</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-medium text-dark mb-2">输入</h4>
+                            <div class="bg-light-1 p-4 rounded-lg border-l-4 border-primary">
+                                <pre class="text-sm text-dark-2 whitespace-pre-wrap font-mono" id="sample-input">无</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-dark mb-2">输出</h4>
+                            <div class="bg-light-1 p-4 rounded-lg border-l-4 border-success">
+                                <pre class="text-sm text-dark-2 whitespace-pre-wrap font-mono" id="sample-output">无</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 编程题代码编辑区域 -->
+                <div id="code-editor-section" class="card p-6 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-dark">代码编写</h3>
+                        <div class="flex items-center gap-2">
+                            <select id="language-select" class="border border-light-2 rounded px-3 py-1 text-sm">
+                                <option value="python">Python</option>
+                                <option value="cpp">C++</option>
+                                <option value="java">Java</option>
+                            </select>
+                            <button class="btn btn-primary text-sm" onclick="runCode()">
+                                <i class="fa fa-play"></i>
+                                运行代码
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 提交方式切换 -->
+                    <div class="mb-4 p-4 bg-light-1 rounded-lg">
+                        <div class="flex items-center gap-4 mb-3">
+                            <span class="font-medium text-dark">提交方式：</span>
+                            <label class="flex items-center gap-2">
+                                <input type="radio" name="submit-method" value="editor" checked class="text-primary">
+                                <span class="text-dark">在线编辑器</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="radio" name="submit-method" value="zip" class="text-primary">
+                                <span class="text-dark">上传ZIP文件</span>
+                            </label>
+                        </div>
+
+                        <!-- 在线编辑器区域 -->
+                        <div id="editor-mode" class="border border-gray-600 rounded-lg overflow-hidden bg-gray-800">
+                            <div id="code-editor-container">
+                                <textarea
+                                    id="code-editor"
+                                    class="code-editor w-full h-96 p-4 border-0 resize-none focus:outline-none bg-gray-800 text-gray-300"
+                                    placeholder="请在此输入您的代码..."
+                                    spellcheck="false"
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <!-- ZIP上传区域 -->
+                        <div id="zip-mode" class="hidden">
+                            <div class="border-2 border-dashed border-light-3 rounded-lg p-8 text-center bg-light-1">
+                                <div class="mb-4">
+                                    <i class="fa fa-cloud-upload text-4xl text-light-3 mb-3"></i>
+                                    <h4 class="text-lg font-semibold text-dark mb-2">上传并运行代码ZIP文件</h4>
+                                    <p class="text-dark-2 text-sm mb-4">
+                                        上传包含源代码的ZIP压缩包，系统将自动检测验证代码并运行测试
+                                    </p>
+                                    <div class="mb-4">
+                                        <input type="file" id="zip-file-input" accept=".zip" class="hidden">
+                                        <button class="btn btn-primary" onclick="selectZipFile()">
+                                            <i class="fa fa-folder-open"></i>
+                                            选择ZIP文件
+                                        </button>
+                                    </div>
+                                    <div id="zip-file-info" class="text-sm text-dark-2 hidden">
+                                        <div class="flex items-center justify-center gap-2 mb-3">
+                                            <i class="fa fa-file-archive-o"></i>
+                                            <span id="selected-zip-name">未选择文件</span>
+                                            <span id="zip-file-size" class="text-light-3"></span>
+                                        </div>
+                                        <button class="btn btn-primary text-sm" onclick="runZipCode()">
+                                            <i class="fa fa-play"></i>
+                                            运行ZIP代码
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-dark-2 bg-light-2 p-3 rounded">
+                                    <p class="mb-1"><strong>文件要求：</strong></p>
+                                    <ul class="text-left list-disc list-inside space-y-1">
+                                        <li>Python: 包含 .py 文件</li>
+                                        <li>C++: 包含 .cpp、.cc、.cxx 或 .c++ 文件</li>
+                                        <li>Java: 包含带 public class 的 .java 文件，类名须与文件名一致</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 代码运行结果区域 -->
+                <div id="run-result-section" class="card p-6 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-dark">运行结果</h3>
+                        <button class="text-dark-2 hover:text-primary" onclick="clearRunResult()">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div id="run-result-content">
+                        <!-- 运行结果将在这里显示 -->
+                    </div>
+                </div>
+
+                <!-- 提交区域 -->
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-dark-2">
+                            请完成答题后点击提交作业
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button class="btn btn-primary" id="submit-button" onclick="submitAnswer()">
+                                <i class="fa fa-paper-plane"></i>
+                                提交作业
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 页面数据
+        let currentProblemId = null;
+        let currentProblemType = null;
+        let currentAssignmentId = null;
+        let timeLimit = 0;
+        let startTime = null;
+        let codeEditor = null; // CodeMirror 编辑器实例
+
+        // 获取URL参数
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            currentProblemId = getUrlParameter('problem_id');
+            currentAssignmentId = getUrlParameter('assignment_id');
+
+            if (!currentProblemId) {
+                alert('缺少题目参数');
+                goBack();
+                return;
+            }
+
+            try {
+                await loadProblemDetail();
+                startTimer();
+                setupSubmissionMethodToggle();
+            } catch (error) {
+                console.error('初始化失败:', error);
+                alert('页面加载失败，请刷新重试');
+            }
+        });
+
+        // 设置提交方式切换
+        function setupSubmissionMethodToggle() {
+            const methodInputs = document.querySelectorAll('input[name="submit-method"]');
+            const editorMode = document.getElementById('editor-mode');
+            const zipMode = document.getElementById('zip-mode');
+            const submitButton = document.getElementById('submit-button');
+
+            // 默认隐藏提交按钮（ZIP模式需要先运行代码）
+            submitButton.style.display = 'block';
+
+            methodInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    if (this.value === 'editor') {
+                        editorMode.classList.remove('hidden');
+                        zipMode.classList.add('hidden');
+                        submitButton.style.display = 'block';
+                        updateSubmitButtonText();
+                    } else if (this.value === 'zip') {
+                        editorMode.classList.add('hidden');
+                        zipMode.classList.remove('hidden');
+                        submitButton.style.display = 'none';  // ZIP模式默认隐藏，运行后显示
+                        updateSubmitButtonText();
+                    }
+                });
+            });
+        }
+
+        // 更新提交按钮文本
+        function updateSubmitButtonText() {
+            const submitButton = document.getElementById('submit-button');
+            const selectedMethod = document.querySelector('input[name="submit-method"]:checked').value;
+
+            if (selectedMethod === 'zip') {
+                submitButton.innerHTML = '<i class="fa fa-paper-plane"></i> 提交ZIP代码';
+            } else {
+                submitButton.innerHTML = '<i class="fa fa-paper-plane"></i> 提交作业';
+            }
+        }
+
+        // 选择ZIP文件
+        function selectZipFile() {
+            document.getElementById('zip-file-input').click();
+        }
+
+        // 监听ZIP文件选择
+        document.getElementById('zip-file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const fileInfo = document.getElementById('zip-file-info');
+                const fileName = document.getElementById('selected-zip-name');
+                const fileSize = document.getElementById('zip-file-size');
+
+                fileName.textContent = file.name;
+                fileSize.textContent = `(${formatFileSize(file.size)})`;
+                fileInfo.classList.remove('hidden');
+
+                // 验证文件大小（限制为10MB）
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('文件大小不能超过10MB');
+                    this.value = '';
+                    fileInfo.classList.add('hidden');
+                }
+            }
+        });
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 显示ZIP文件信息
+        function showZipFileInfo(filesFound, validationMessage) {
+            const zipMode = document.getElementById('zip-mode');
+            let zipInfoHtml = `
+                <div class="mt-4 p-4 bg-success/5 border border-success/20 rounded-lg">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fa fa-check-circle text-success"></i>
+                        <span class="font-medium text-success">ZIP文件解析成功</span>
+                    </div>
+                    <p class="text-sm text-dark-2 mb-2">${validationMessage}</p>
+                    <div class="text-sm">
+                        <p class="font-medium text-dark mb-1">检测到的文件：</p>
+                        <ul class="list-disc list-inside space-y-1">
+            `;
+
+            filesFound.forEach(file => {
+                zipInfoHtml += `<li>${file.filename} (${file.path})</li>`;
+            });
+
+            zipInfoHtml += `
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            zipMode.querySelector('.border-2').insertAdjacentHTML('beforeend', zipInfoHtml);
+        }
+
+        // 加载题目详情
+        async function loadProblemDetail() {
+            try {
+                const response = await fetch(`/api/student/problem/detail?problem_id=${currentProblemId}&assignment_id=${currentAssignmentId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayProblemDetail(data.data);
+                } else {
+                    throw new Error(data.message || '获取题目详情失败');
+                }
+            } catch (error) {
+                console.error('获取题目详情失败:', error);
+                alert('获取题目详情失败: ' + error.message);
+            }
+        }
+
+        // 显示题目详情
+        function displayProblemDetail(problem) {
+            // 设置基本信息
+            document.getElementById('problem-title').textContent = problem.title || '无标题';
+            document.getElementById('problem-description').textContent = problem.description || '暂无描述';
+
+            // 设置题目类型和难度
+            const typeElement = document.getElementById('problem-type');
+            const difficultyElement = document.getElementById('problem-difficulty');
+
+            if (problem.question_type === 'progressing') {
+                typeElement.textContent = '编程题';
+                typeElement.className = 'px-3 py-1 bg-primary/10 text-primary rounded-full text-sm';
+                showProgrammingSection(problem);
+            } else if (problem.question_type === 'choice') {
+                typeElement.textContent = '选择题';
+                typeElement.className = 'px-3 py-1 bg-success/10 text-success rounded-full text-sm';
+                showChoiceSection(problem);
+            } else if (problem.question_type === 'judgment') {
+                typeElement.textContent = '判断题';
+                typeElement.className = 'px-3 py-1 bg-warning/10 text-warning rounded-full text-sm';
+                showJudgmentSection(problem);
+            }
+
+            // 设置难度
+            if (problem.difficulty === '简单') {
+                difficultyElement.className = 'px-3 py-1 bg-success/10 text-success rounded-full text-sm';
+            } else if (problem.difficulty === '中等') {
+                difficultyElement.className = 'px-3 py-1 bg-warning/10 text-warning rounded-full text-sm';
+            } else {
+                difficultyElement.className = 'px-3 py-1 bg-danger/10 text-danger rounded-full text-sm';
+            }
+            difficultyElement.textContent = problem.difficulty || '未知';
+
+            // 更新侧边栏信息
+            updateProblemInfo(problem);
+
+            currentProblemType = problem.question_type;
+        }
+
+        // 显示编程题区域
+        function showProgrammingSection(problem) {
+            document.getElementById('programming-section').classList.remove('hidden');
+            document.getElementById('code-editor-section').classList.remove('hidden');
+
+            // 设置输入输出说明
+            document.getElementById('input-description').textContent = problem.input_description || '无';
+            document.getElementById('output-description').textContent = problem.output_description || '无';
+
+            // 显示测试用例
+            if (problem.sample_input || problem.sample_output) {
+                document.getElementById('sample-test-case-section').classList.remove('hidden');
+                document.getElementById('sample-input').textContent = problem.sample_input || '无';
+                document.getElementById('sample-output').textContent = problem.sample_output || '无';
+            }
+
+            // 初始化CodeMirror编辑器
+            initializeCodeEditor();
+        }
+
+        // 初始化CodeMirror编辑器
+        function initializeCodeEditor() {
+            // 检查CodeMirror是否已加载
+            if (typeof CodeMirror === 'undefined') {
+                console.warn('CodeMirror库未加载，将使用普通文本框');
+                // 隐藏CodeMirror相关的UI元素，如果需要的话
+                return;
+            }
+
+            const editorContainer = document.getElementById('code-editor-container');
+
+            // 如果编辑器已存在，先销毁
+            if (codeEditor) {
+                codeEditor.toTextArea();
+            }
+
+            try {
+                // 创建CodeMirror编辑器
+                codeEditor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                    lineNumbers: true,
+                    mode: 'python',
+                    theme: 'default',
+                    indentUnit: 4,
+                    tabSize: 4,
+                    lineWrapping: true,
+                    autoCloseBrackets: true,
+                    matchBrackets: true,
+                    foldGutter: true,
+                    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+                    extraKeys: {
+                        "Ctrl-Space": "autocomplete",
+                        "Ctrl-/": "toggleComment"
+                    }
+                });
+
+                // 设置编辑器高度
+                codeEditor.setSize(null, '24rem');
+
+                // 监听语言选择变化
+                document.getElementById('language-select').addEventListener('change', function() {
+                    updateEditorMode(this.value);
+                });
+
+                // 初始化语言模式
+                updateEditorMode(document.getElementById('language-select').value);
+
+                console.log('CodeMirror编辑器初始化成功');
+            } catch (error) {
+                console.error('CodeMirror初始化失败:', error);
+                console.warn('将使用普通文本框');
+                // 移除CodeMirror实例引用
+                codeEditor = null;
+            }
+        }
+
+        // 更新编辑器语言模式
+        function updateEditorMode(language) {
+            if (!codeEditor || typeof CodeMirror === 'undefined') return;
+
+            let mode = 'text/plain';
+            if (language === 'python') {
+                mode = 'python';
+            } else if (language === 'cpp') {
+                mode = 'text/x-c++src';
+            } else if (language === 'java') {
+                mode = 'text/x-java';
+            }
+
+            try {
+                codeEditor.setOption('mode', mode);
+            } catch (error) {
+                console.error('设置编辑器模式失败:', error);
+            }
+        }
+
+        // 显示选择题区域
+        function showChoiceSection(problem) {
+            document.getElementById('choice-section').classList.remove('hidden');
+
+            const optionsContainer = document.getElementById('choice-options');
+            if (problem.options) {
+                let optionsHtml = '';
+                if (typeof problem.options === 'string') {
+                    try {
+                        const options = JSON.parse(problem.options);
+                        Object.entries(options).forEach(([key, value]) => {
+                            const letterKey = String.fromCharCode(65 + parseInt(key)); // 数字转字母 (0->A, 1->B, etc.)
+                            optionsHtml += `
+                                <label class="flex items-center gap-3 p-3 rounded-lg border border-light-2 hover:border-primary cursor-pointer">
+                                    <input type="radio" name="choice-answer" value="${letterKey}" class="text-primary">
+                                    <span class="text-dark">${letterKey}. ${value}</span>
+                                </label>
+                            `;
+                        });
+                    } catch (e) {
+                        optionsHtml = '<p class="text-danger">选项数据格式错误</p>';
+                    }
+                } else {
+                    Object.entries(problem.options).forEach(([key, value]) => {
+                        const letterKey = String.fromCharCode(65 + parseInt(key)); // 数字转字母 (0->A, 1->B, etc.)
+                        optionsHtml += `
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-light-2 hover:border-primary cursor-pointer">
+                                <input type="radio" name="choice-answer" value="${letterKey}" class="text-primary">
+                                <span class="text-dark">${letterKey}. ${value}</span>
+                            </label>
+                        `;
+                    });
+                }
+                optionsContainer.innerHTML = optionsHtml;
+            } else {
+                optionsContainer.innerHTML = '<p class="text-dark-2">暂无选项</p>';
+            }
+        }
+
+        // 显示判断题区域
+        function showJudgmentSection(problem) {
+            document.getElementById('judgment-section').classList.remove('hidden');
+            // 判断题的选项已经静态定义在HTML中
+        }
+
+        // 更新侧边栏题目信息
+        function updateProblemInfo(problem) {
+            const infoContainer = document.getElementById('problem-info');
+
+            let infoHtml = `
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-medium text-dark mb-2">基本信息</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-dark-2">题型：</span>
+                                <span class="font-medium">${problem.question_type === 'progressing' ? '编程题' : problem.question_type === 'choice' ? '选择题' : '判断题'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-dark-2">难度：</span>
+                                <span class="font-medium">${problem.difficulty || '未知'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-dark-2">语言：</span>
+                                <span class="font-medium">${problem.language || '不限'}</span>
+                            </div>
+                            ${problem.knowledge_points ? `
+                            <div class="flex justify-between">
+                                <span class="text-dark-2">知识点：</span>
+                                <span class="font-medium">${problem.knowledge_points}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            infoContainer.innerHTML = infoHtml;
+        }
+
+        // 开始计时器
+        function startTimer() {
+            startTime = new Date();
+            timeLimit = 3600; // 默认1小时，实际应该从后端获取
+
+            updateTimerDisplay();
+
+            setInterval(() => {
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        // 更新计时器显示
+        function updateTimerDisplay() {
+            if (!startTime) return;
+
+            const now = new Date();
+            const elapsed = Math.floor((now - startTime) / 1000);
+            const remaining = Math.max(0, timeLimit - elapsed);
+
+            const hours = Math.floor(remaining / 3600);
+            const minutes = Math.floor((remaining % 3600) / 60);
+            const seconds = remaining % 60;
+
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('time-remaining').textContent = timeString;
+
+            // 时间不足警告
+            if (remaining < 300) { // 5分钟
+                document.getElementById('time-remaining').className = 'text-danger font-bold';
+            } else if (remaining < 600) { // 10分钟
+                document.getElementById('time-remaining').className = 'text-warning font-bold';
+            }
+        }
+
+        // 运行代码
+        async function runCode() {
+            const code = codeEditor ? codeEditor.getValue().trim() : document.getElementById('code-editor').value.trim();
+            const language = document.getElementById('language-select').value;
+
+            if (!code) {
+                alert('请先输入代码');
+                return;
+            }
+
+            try {
+                // 显示加载状态
+                const runBtn = document.querySelector('button[onclick="runCode()"]');
+                const originalText = runBtn.innerHTML;
+                runBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 运行中...';
+                runBtn.disabled = true;
+
+                // 调用后端的代码运行接口
+                const response = await fetch('/api/student/run_code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        language: language,
+                        problem_id: currentProblemId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // 显示运行结果
+                    showRunResult(data.data);
+                } else {
+                    // API返回成功但业务逻辑失败，显示错误结果
+                    showRunResult({
+                        status: "error",
+                        error: data.message || '代码运行失败',
+                        execution_time: 0,
+                        output: "",
+                        test_results: []
+                    });
+                }
+            } catch (error) {
+                console.error('运行代码失败:', error);
+                alert('运行代码失败: ' + error.message);
+            } finally {
+                // 恢复按钮状态
+                const runBtn = document.querySelector('button[onclick="runCode()"]');
+                if (runBtn) {
+                    runBtn.innerHTML = '<i class="fa fa-play"></i> 运行代码';
+                    runBtn.disabled = false;
+                }
+            }
+        }
+
+        // 提交作业
+        async function submitAnswer() {
+            const selectedMethod = document.querySelector('input[name="submit-method"]:checked').value;
+
+            // 根据提交方式验证和处理
+            if (selectedMethod === 'zip') {
+                await submitZipAnswer();
+            } else {
+                await submitEditorAnswer();
+            }
+        }
+
+        // 提交编辑器代码
+        async function submitEditorAnswer() {
+            const answer = getCurrentAnswer();
+
+            if (!answer) {
+                alert('请先完成答题');
+                return;
+            }
+
+            // 显示确认对话框
+            const confirmMessage = '确定要提交作业吗？提交后将无法修改答案。';
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-button');
+            await submitAjax(submitBtn, '/api/student/submit_answer', {
+                problem_id: currentProblemId,
+                assignment_id: currentAssignmentId,
+                answer: answer,
+                answer_type: currentProblemType
+            });
+        }
+
+        // 运行ZIP文件中的代码
+        async function runZipCode() {
+            const zipFileInput = document.getElementById('zip-file-input');
+            const file = zipFileInput.files[0];
+
+            if (!file) {
+                alert('请选择ZIP文件');
+                return;
+            }
+
+            const runBtn = document.querySelector('button[onclick="runZipCode()"]');
+            const language = document.getElementById('language-select').value;
+
+            runBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 运行中...';
+            runBtn.disabled = true;
+
+            try {
+                // 创建FormData对象上传文件
+                const formData = new FormData();
+                formData.append('code_zip', file);
+                formData.append('problem_id', currentProblemId);
+                formData.append('language', language);
+
+                const response = await fetch('/api/student/run_zip_code', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // 显示运行结果
+                    showRunResult(data.data);
+
+                    // 显示提交按钮（ZIP代码已准备好）
+                    const submitBtn = document.getElementById('submit-button');
+                    submitBtn.style.display = 'block';
+
+                    // 显示额外的ZIP信息
+                    if (data.data.files_found && data.data.files_found.length > 0) {
+                        showZipFileInfo(data.data.files_found, data.data.validation_message);
+                    }
+
+                } else {
+                    alert('运行失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('运行ZIP代码失败:', error);
+                alert('运行ZIP代码失败: ' + error.message);
+            } finally {
+                runBtn.innerHTML = '<i class="fa fa-play"></i> 运行ZIP';
+                runBtn.disabled = false;
+            }
+        }
+
+        // 提交ZIP文件
+        async function submitZipAnswer() {
+            const confirmMessage = '确定要提交ZIP文件中解析出的代码吗？提交后将无法修改答案。';
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-button');
+            const language = document.getElementById('language-select').value;
+
+            await submitAjaxWithFormData(submitBtn, '/api/student/submit_code_zip', null);
+        }
+
+        // 通用AJAX提交函数（JSON）
+        async function submitAjax(submitBtn, url, bodyData) {
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 提交中...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(bodyData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('作业提交成功！');
+                    // 跳转回作业列表页面，同时传递课程ID和班级ID
+                    const courseId = data.data?.course_id;
+                    const classId = data.data?.class_id;
+                    const targetUrl = courseId && classId ?
+                        `/student/course_detail?course_id=${courseId}&class_id=${classId}` :
+                        '/student/courses';
+                    window.location.href = targetUrl;
+                } else {
+                    throw new Error(data.message || '提交失败');
+                }
+            } catch (error) {
+                console.error('提交作业失败:', error);
+                alert('提交作业失败: ' + error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // 通用AJAX提交函数（FormData）
+        async function submitAjaxWithFormData(submitBtn, url, formData) {
+            const originalText = submitBtn.innerHTML;
+            const isZipSubmit = url.includes('submit_code_zip');
+
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (isZipSubmit ? '提交中...' : '上传中...');
+            submitBtn.disabled = true;
+
+            try {
+                let response;
+                if (isZipSubmit) {
+                    // ZIP提交使用JSON格式
+                    response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            problem_id: currentProblemId,
+                            assignment_id: currentAssignmentId
+                        })
+                    });
+                } else {
+                    // 文件上传使用FormData
+                    response = await fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    });
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const message = data.message || (isZipSubmit ? 'ZIP代码提交成功！' : '文件上传成功！');
+                    const resultText = data.data && 'is_correct' in data.data ?
+                        `评判结果: ${data.data.is_correct ? '✓ 正确' : '✗ 错误'}\n得分: ${data.data.score || 0}` : '';
+
+                    alert(message + (resultText ? '\n' + resultText : ''));
+
+                    // 跳转到相应的页面
+                    if (isZipSubmit) {
+                        window.location.href = '/student/courses';
+                    } else {
+                        window.location.href = '/student/courses';
+                    }
+                } else {
+                    throw new Error(data.message || (isZipSubmit ? '提交失败' : '上传失败'));
+                }
+            } catch (error) {
+                console.error(isZipSubmit ? '提交ZIP代码失败:' : '上传ZIP文件失败:', error);
+                alert((isZipSubmit ? '提交ZIP代码失败: ' : '上传ZIP文件失败: ') + error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // 获取当前答案
+        function getCurrentAnswer() {
+            if (currentProblemType === 'progressing') {
+                // 从CodeMirror编辑器获取代码
+                return codeEditor ? codeEditor.getValue().trim() : document.getElementById('code-editor').value.trim();
+            } else if (currentProblemType === 'choice') {
+                const selected = document.querySelector('input[name="choice-answer"]:checked');
+                return selected ? selected.value : null;
+            } else if (currentProblemType === 'judgment') {
+                const selected = document.querySelector('input[name="judgment-answer"]:checked');
+                return selected ? selected.value : null;
+            }
+            return null;
+        }
+
+        // 显示运行结果
+        function showRunResult(result) {
+            const resultSection = document.getElementById('run-result-section');
+            const resultContent = document.getElementById('run-result-content');
+
+            let html = '';
+
+            // 统计测试用例结果
+            let totalTests = 0;
+            let passedTests = 0;
+            let failedTests = 0;
+
+            if (result.status === 'success') {
+                // 计算统计信息
+                if (result.test_results && result.test_results.length > 0) {
+                    totalTests = result.test_results.length;
+                    passedTests = result.test_results.filter(test => test.passed).length;
+                    failedTests = totalTests - passedTests;
+                }
+
+                html += `
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 bg-success/10 text-success rounded-full text-sm">✓ 编译成功</span>
+                                <span class="text-sm text-dark-2">执行时间: ${result.execution_time || 'N/A'} ms</span>
+                            </div>
+                        </div>
+                        ${totalTests > 0 ? `
+                            <div class="mt-3 p-3 bg-light-1 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-medium text-dark">测试结果统计</span>
+                                    <span class="text-sm text-dark-2">
+                                        ${failedTests === 0 ? `<span class="text-success">🎉 全通过</span>` : `${passedTests}/${totalTests} 通过`}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="flex-1 bg-light-2 rounded-full h-2 overflow-hidden">
+                                        <div class="bg-success h-2 rounded-full transition-all duration-300"
+                                             style="width: ${(passedTests/totalTests)*100}%"></div>
+                                    </div>
+                                    <span class="text-xs text-dark-2 whitespace-nowrap">${Math.round((passedTests/totalTests)*100)}%</span>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                // 显示基本输出（如果有）
+                if (result.output && result.output.trim() && totalTests === 0) {
+                    html += `
+                        <div class="mb-4">
+                            <h4 class="font-medium text-dark mb-2">程序输出</h4>
+                            <div class="bg-light-1 p-4 rounded-lg border-l-4 border-success">
+                                <pre class="text-sm text-dark-2 whitespace-pre-wrap font-mono">${result.output}</pre>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 显示测试用例结果
+                if (result.test_results && result.test_results.length > 0) {
+                    html += `
+                        <div class="mb-4">
+                            <h4 class="font-medium text-dark mb-3">详细测试结果</h4>
+                            <div class="space-y-3">
+                    `;
+
+                    // 优先显示失败的测试用例
+                    const failedTestsResults = result.test_results.filter(test => !test.passed);
+                    const passedTestsResults = result.test_results.filter(test => test.passed);
+
+                    // 显示失败的测试用例（更突出）
+                    failedTestsResults.forEach((test, originalIndex) => {
+                        const displayIndex = result.test_results.indexOf(test) + 1;
+                        html += createTestCaseHtml(test, displayIndex, false);
+                    });
+
+                    // 显示通过的测试用例（简洁显示）
+                    passedTestsResults.forEach((test, originalIndex) => {
+                        const displayIndex = result.test_results.indexOf(test) + 1;
+                        html += createTestCaseHtml(test, displayIndex, true);
+                    });
+
+                    html += `
+                        </div>
+                        ${failedTests > 0 ? `
+                            <div class="mt-4 p-4 bg-warning/5 border border-warning/20 rounded-lg">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-6 h-6 bg-warning/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                        <i class="fa fa-lightbulb-o text-warning text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-medium text-dark mb-1">💡 调试建议</h5>
+                                        <ul class="text-sm text-dark-2 space-y-1">
+                                            <li>• 检查输入输出的格式是否与示例一致</li>
+                                            <li>• 注意输出末尾的换行符、空格或制表符</li>
+                                            <li>• 验证算法逻辑是否覆盖所有边界情况</li>
+                                            <li>• 使用调试输出跟踪变量值的变化</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>`;
+                }
+            } else {
+                html += `
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 bg-danger/10 text-danger rounded-full text-sm">
+                                    <i class="fa fa-times"></i>
+                                    代码执行出错
+                                </span>
+                                <span class="text-sm text-dark-2">执行时间: ${result.execution_time || 'N/A'} ms</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (result.error) {
+                    html += `
+                        <div class="mb-4">
+                            <h4 class="font-medium text-dark mb-2">⚠️ 主要错误信息</h4>
+                            <div class="bg-danger/5 border border-danger/20 p-4 rounded-lg">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-6 h-6 bg-danger/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i class="fa fa-exclamation-triangle text-danger text-sm"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <pre class="text-sm text-danger whitespace-pre-wrap font-mono leading-relaxed">${result.error}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 即使出现错误也要显示测试用例结果（如果有的话）
+                if (result.test_results && result.test_results.length > 0) {
+                    const failedTestsResults = result.test_results.filter(test => !test.passed);
+                    const passedTestsResults = result.test_results.filter(test => test.passed);
+                    failedTests = failedTestsResults.length;
+                    passedTests = passedTestsResults.length;
+                    totalTests = result.test_results.length;
+
+                    html += `
+                        <div class="mb-4">
+                            <h4 class="font-medium text-dark mb-3">测试用例执行结果</h4>
+                            ${totalTests > 0 ? `
+                                <div class="mt-3 p-3 bg-danger/5 border border-danger/20 rounded-lg mb-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-medium text-danger">执行统计</span>
+                                        <span class="text-sm text-danger">
+                                            ${passedTests}/${totalTests} 通过 • ${failedTests} 个失败
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex-1 bg-light-2 rounded-full h-2 overflow-hidden">
+                                            <div class="bg-danger h-2 rounded-full transition-all duration-300"
+                                                  style="width: ${(failedTests/totalTests)*100}%"></div>
+                                        </div>
+                                        <span class="text-xs text-danger whitespace-nowrap">${Math.round((failedTests/totalTests)*100)}% 测试失败</span>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            <div class="space-y-3">
+                    `;
+
+                    // 显示失败的测试用例，带上特殊的高亮
+                    if (failedTestsResults.length > 0) {
+                        html += `
+                            <div class="mb-3">
+                                <span class="text-sm font-medium text-danger">💥 失败的测试用例：</span>
+                            </div>
+                        `;
+                        failedTestsResults.forEach((test, originalIndex) => {
+                            const displayIndex = result.test_results.indexOf(test) + 1;
+                            // 为出错时的测试用例显示添加额外的警告样式
+                            html += createTestCaseHtml(test, displayIndex, false, true); // 添加额外的强调参数
+                        });
+                    }
+
+                    // 显示成功的测试用例
+                    if (passedTestsResults.length > 0) {
+                        html += `
+                            <div class="mb-3 mt-4">
+                                <span class="text-sm font-medium text-success">✅ 通过的测试用例：</span>
+                            </div>
+                        `;
+                        passedTestsResults.forEach((test, originalIndex) => {
+                            const displayIndex = result.test_results.indexOf(test) + 1;
+                            html += createTestCaseHtml(test, displayIndex, true);
+                        });
+                    }
+
+                    html += `
+                            </div>
+
+                            ${failedTests > 0 ? `
+                                <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                            <i class="fa fa-lightbulb-o text-yellow-600 text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-yellow-800 mb-2">🔍 调试指南</h5>
+                                            <ul class="text-sm text-yellow-700 space-y-1">
+                                                <li>• <strong>检查语法错误</strong>：确认括号、分号、变量声明是否正确</li>
+                                                <li>• <strong>查看输入输出</strong>：对比你的输出与期望输出，注意空格和换行</li>
+                                                <li>• <strong>测试边界条件</strong>：使用不同的输入值测试算法</li>
+                                                <li>• <strong>逐步调试</strong>：添加中间变量输出跟踪程序执行流程</li>
+                                                <li class="text-yellow-600 font-medium">💡 重点关注失败的测试用例，逐一修复问题！</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>`;
+                }
+
+                // 为Java相关错误添加特殊处理
+                if (result.error && (result.error.includes('Java') || result.error.includes('javac'))) {
+                    html += `
+                        <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <h6 class="font-medium text-blue-800 mb-1">🔧 Java 特定问题解决</h6>
+                            <ul class="text-xs text-blue-700 space-y-1">
+                                <li>• 确认类名与文件名一致（如：public class Solution）</li>
+                                <li>• 检查Java环境配置（JAVA_HOME, PATH）</li>
+                                <li>• 确认使用正确的包导入语句</li>
+                                <li>• 验证输入输出语句格式是否正确</li>
+                            </ul>
+                        </div>
+                    `;
+                }
+            }
+
+            resultContent.innerHTML = html;
+            resultSection.classList.remove('hidden');
+
+            // 滚动到结果区域
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // 创建测试用例HTML的辅助函数
+        function createTestCaseHtml(test, testIndex, isPassed, isErrorContext = false) {
+            const statusColor = isPassed ? 'success' : 'danger';
+            const statusText = isPassed ? '✓ 通过' : '✗ 失败';
+            const borderColor = isPassed ? 'border-success' : 'border-danger';
+            const bgColor = isPassed ? 'bg-success' : 'bg-danger';
+            const textColor = isPassed ? 'text-success' : 'text-danger';
+
+            // 如果是在错误上下文中且测试失败，使用更强的视觉效果
+            const borderStyle = (!isPassed && isErrorContext) ? 'border-4 border-red-300' : `border-2 ${borderColor}/30`;
+            const backgroundStyle = (!isPassed && isErrorContext) ? 'bg-red-50' : `bg-${statusColor}/5`;
+
+            let html = '';
+
+            if (isPassed) {
+                // 通过的测试用例 - 简洁显示
+                html += `
+                    <div class="border border-success/20 rounded-lg p-3 bg-success/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-dark">测试用例 ${testIndex}</span>
+                            <span class="px-2 py-1 bg-success/10 text-success rounded-full text-xs">${statusText}</span>
+                        </div>
+                        <div class="text-xs text-success bg-success/5 px-2 py-1 rounded">
+                            ✓ 输入输出完全匹配
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 失败的测试用例 - 详细显示对比
+                html += `
+                    <div class="${borderStyle} rounded-lg p-4 ${backgroundStyle} ${!isPassed && isErrorContext ? 'ring-2 ring-red-300' : ''}">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm font-medium text-danger">
+                                ${isErrorContext ? '🚨 ' : ''}测试用例 ${testIndex}
+                                ${test.test_case_index ? ` (用例ID: ${test.test_case_index})` : ''}
+                            </span>
+                            <span class="px-2 py-1 bg-danger/10 text-danger rounded-full text-xs font-bold">
+                                ${isErrorContext ? '❌ ' : ''}${statusText}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                            <div>
+                                <div class="text-xs font-medium text-dark-2 mb-1 flex items-center gap-2">
+                                    <i class="fa fa-sign-in text-primary"></i>
+                                    输入数据
+                                </div>
+                                <div class="bg-light-1 p-3 rounded-lg border ${isErrorContext ? 'border-red-200 bg-red-25' : ''}">
+                                    <pre class="text-xs text-dark-2 whitespace-pre-wrap font-mono leading-relaxed">${test.input || '空输入'}</pre>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <div class="text-xs font-medium text-dark-2 mb-1 flex items-center gap-2">
+                                            <i class="fa fa-check text-success"></i>
+                                            <span class="font-bold">期望输出</span>
+                                        </div>
+                                        <div class="bg-success/5 p-3 rounded-lg border border-success/20 min-h-[3rem]">
+                                            <pre class="text-xs text-success whitespace-pre-wrap font-mono leading-relaxed">${test.expected_output || '无期望输出'}</pre>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-medium text-dark-2 mb-1 flex items-center gap-2">
+                                            <i class="fa fa-times text-danger"></i>
+                                            <span class="font-bold">你的输出</span>
+                                        </div>
+                                        <div class="bg-danger/5 p-3 rounded-lg border border-danger/20 min-h-[3rem] ${isErrorContext ? 'bg-red-50 border-red-300' : ''}">
+                                            <pre class="text-xs ${isErrorContext ? 'text-red-700 font-mono bg-red-50' : 'text-danger'} whitespace-pre-wrap leading-relaxed ${isErrorContext ? 'border-l-4 border-red-400 pl-2 bg-red-25' : 'font-mono'}">${test.actual_output || '无输出'}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${test.error ? `
+                            <div class="text-xs text-danger bg-danger/5 p-3 rounded-lg flex items-start gap-2 ${isErrorContext ? 'bg-red-100 border border-red-300' : ''}">
+                                <i class="fa fa-exclamation-triangle mt-1 text-red-600"></i>
+                                <div class="flex-1">
+                                    <div class="font-bold text-red-800 mb-1">${isErrorContext ? '🔴 关键错误信息：' : '运行时错误：'}</div>
+                                    <div class="text-red-700">${test.error}</div>
+                                    ${isErrorContext && test.error.includes('超时') ? '<div class="mt-2 text-yellow-700 bg-yellow-50 p-2 rounded">💡 <strong>超时建议：</strong>代码可能存在死循环，请检查循环条件和递归终止条件</div>' : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${isErrorContext && !test.error && test.actual_output !== test.expected_output ? `
+                            <div class="text-xs text-blue-700 bg-blue-50 p-3 rounded-lg border border-blue-300">
+                                <i class="fa fa-info-circle text-blue-600 mr-2"></i>
+                                <strong>输出不匹配分析：</strong>
+                                <ul class="mt-1 ml-4 space-y-1">
+                                    <li>• 检查是否有多余的空格或换行符</li>
+                                    <li>• 确认输出的格式是否与示例完全一致</li>
+                                    <li>• 验证数值类型是否正确（整数vs浮点数）</li>
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            return html;
+        }
+
+        // 清除运行结果
+        function clearRunResult() {
+            const resultSection = document.getElementById('run-result-section');
+            const resultContent = document.getElementById('run-result-content');
+
+            resultContent.innerHTML = '';
+            resultSection.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

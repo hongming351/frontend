@@ -1,0 +1,436 @@
+\begin{quote}
+\includegraphics[width=3.44667in,height=0.86000in]{media/image1.jpeg}
+\end{quote}
+
+《程序设计实习》结课报告
+
+\begin{quote}
+学生姓名： \emph{黎越 洪铭 耿天翊 }
+
+学 号： 2407030119 2407030126 2407030115
+
+专业班级： 智科 2401 智科 2401 智科 2401
+
+学 院：\emph{青岛软件学院、计算机科学与技术学院}
+\end{quote}
+
+2025 年 8 月 27 日
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item ~
+  \section{项目内容组测}\label{ux9879ux76eeux5185ux5bb9ux7ec4ux6d4b}
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    \textbf{完成任务清单}
+  \end{enumerate}
+\end{enumerate}
+
+\begin{quote}
+任务完成清单。以下内容中标记 ⊕ 的都是必须完成的任务，将 ⊕
+标签按以下方式改写：完成的标记✓，未完成的标记×。
+
+除了以上任务, 本组完成的非规定任务标记 ∆，可以自行添加
+\end{quote}
+
+\begin{itemize}
+\item
+  \begin{quote}
+  管理员模块
+  \end{quote}
+
+  \begin{itemize}
+  \item
+    \begin{quote}
+    ⊕✓ 教师管理
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕\protect\hypertarget{OLE_LINK1}{}{}✓ 课程管理
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓教师和课程的关联管理
+    \end{quote}
+  \end{itemize}
+\item
+  \begin{quote}
+  教师模块
+  \end{quote}
+
+  \begin{itemize}
+  \item
+    \begin{quote}
+    ⊕✓ 课程选择
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓ 题库管理
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓ 作业管理（必须包括时间约束和题目选择功能）
+    \end{quote}
+  \item
+    \begin{quote}
+    ∆ 批改作业（系统自动批改和教师手动批改）
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓ 学生管理（学生分类）
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓ 学生管理（单个导入学生）
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓ 学生管理（批量导入学生）
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓ 手工添加题目（注明包括的类型：选择、判断、编程等）
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓ 选择题智能生成
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓ 编程题智能生成（包括自测，支持Python , C++和java编程语言）
+    \end{quote}
+  \item
+    \begin{quote}
+    ∆ 判断题智能生成
+    \end{quote}
+  \end{itemize}
+\item
+  \begin{quote}
+  学生模块
+  \end{quote}
+
+  \begin{itemize}
+  \item
+    \begin{quote}
+    ⊕ ✓ 作业查看
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓ 编程题评测（使用本地编译器）
+    \end{quote}
+  \item
+    \begin{quote}
+    ⊕✓ 选择题评测
+    \end{quote}
+  \item
+    \begin{quote}
+    ∆ 判断题评测
+    \end{quote}
+  \end{itemize}
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{管理员模块}
+\end{enumerate}
+
+\begin{quote}
+对照以上的任务清单，详细阐述该模块中的内容, 对应部分给出截图证明
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{教师模块}
+\end{enumerate}
+
+\begin{quote}
+对照以上的任务清单，详细阐述该模块中的内容, 对应部分给出截图证明
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{学生模块}
+\end{enumerate}
+
+\begin{quote}
+对照以上的任务清单，详细阐述该模块中的内容, 对应部分给出截图证明
+\end{quote}
+
+\section{学习到的新技术}\label{ux5b66ux4e60ux5230ux7684ux65b0ux6280ux672f}
+
+\begin{quote}
+小结题目可以修改或增加
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{前后端分离的技术理解}
+\end{enumerate}
+
+\textbf{前端：作为用户交互的核心，负责所有功能的可视化呈现与用户操作体验。例如，在智能生成题目界面，它提供直观的条件筛选功能，让用户能够精确指令大模型生成所需题目；同时，前端通过调用后端
+API 接口获取数据，并将其动态、清晰地展示在界面上。}
+
+\textbf{后端：作为数据与业务逻辑的中枢，负责提供稳定、高效的 API
+接口。它接收并解析前端的请求，处理复杂的业务逻辑（如调用大模型、执行计算），与数据库进行交互以实现数据的存取，并负责用户的身份认证与权限管理，确保系统安全。}
+
+前后端分离是一种架构思想。它通过解耦带来了开发效率、用户体验、团队协作、系统性能和可维护性的全方位提升，是现代Web开发的最佳实践。
+
+\textbf{2.2 HTML}
+
+HTML 作为前端页面的 ``骨架''，负责定义智能 OJ
+系统各功能模块的结构布局，确保内容层级清晰、语义化明确，为后续样式美化和交互逻辑提供基础。核心功能包括：
+
+用户交互模块结构，题目核心模块结构，公共组件结构。
+
+2.3\textbf{JavaScript}
+
+JavaScript 作为前端
+``交互大脑''，负责处理用户操作、动态更新页面、调用后端 API、实现智能 OJ
+的核心交互功能。核心功能包括：\textbf{用户操作处理与动态反馈，后端 API
+调用与数据处理，页面状态管理与辅助功能。}
+
+\begin{quote}
+\textbf{2.3CSS}
+
+\textbf{CSS 负责美化 HTML
+结构，通过样式设计提升用户视觉体验，同时保证系统风格统一、响应式适配（适配电脑、平板等设备），核心功能包括：全局样式规范，功能模块样式优化，响应式适配。}
+\end{quote}
+
+\textbf{2.4Flask}
+
+\textbf{Flask 作为后端服务框架，负责接收前端请求、处理 OJ
+核心业务逻辑、操作数据库、管理用户认证，为前端提供稳定的 API
+支持，核心功能包括：API
+接口设计与请求处理，核心业务逻辑处理，数据库操作与用户认证。}
+
+\textbf{2.5数据库设计}
+
+\begin{quote}
+我们采用的是 MySQL数据库，共设计了 21个表格：
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item ~
+  \section{学习到的工具}\label{ux5b66ux4e60ux5230ux7684ux5de5ux5177}
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    \begin{quote}
+    \textbf{Navicat}
+    \end{quote}
+  \end{enumerate}
+\end{enumerate}
+
+\begin{quote}
+我们使用了Navicat工具对我们项目的数据库中21张数据表进行了可视化处理并绘制出了RE图，直观的展示不同数据表之间的主从关系。
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Deepseek大模型
+\end{enumerate}
+
+\begin{quote}
+我们通过调用DeepseekAPI实现了智能出题功能，能够按照筛选条件的自定义要求精准生成对应题目。
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Postman
+\end{enumerate}
+
+\begin{quote}
+我们在后端开发时使用到了Postman工具，它支持所有HTTP方法并且可以轻松设置请求参数，它还可以模拟服务器来创建虚拟API并返回模拟响应。我们在解决BUG时用到了这个工具。
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item ~
+  \section{技术亮点或智能化模块}\label{ux6280ux672fux4eaeux70b9ux6216ux667aux80fdux5316ux6a21ux5757}
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    \begin{quote}
+    \textbf{亮点 1}
+    \end{quote}
+  \end{enumerate}
+\end{enumerate}
+
+\begin{quote}
+\textbf{前端界面美观，注重提升用户体验，业务功能齐全，实现了智能出题（支持多种语言）和自测（使用本地编译器）等多种功能。界面采用卡片式布局、渐变色背景和响应式网格系统，确保在桌面和移动设备上都有良好的视觉效果。}
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  \textbf{亮点 2}
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\textbf{智能出题：集成了DeepSeek API，支持生成各种难度和语言的编程题目}
+
+\textbf{本地自测：内置编译器引擎，支持在代码提交前本地验证测试用例}
+
+\textbf{通过这些设计，系统不仅外观现代美观，还提供了流畅的用户交互和完整的在线学习功能。}
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{亮点 3}
+\end{enumerate}
+
+\begin{quote}
+\textbf{数据库中数据表之间能够通过关联实现教师要求的复杂逻辑关系}
+
+\textbf{项目数据库设计实现了复杂的多对多关联逻辑，满足了在线判题系统的复杂业务需求；}
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{智能题目生成}
+\end{enumerate}
+
+\begin{quote}
+\textbf{智能题目生成是项目核心智能化模块，通过DeepSeek AI实现：}
+
+\textbf{题目描述和输入输出说明}
+
+\textbf{示例数据和测试用例}
+
+\textbf{参考解答和解题思路}
+
+\textbf{相关知识点标注}
+\end{quote}
+
+\textbf{技术实现亮点：}
+
+\begin{quote}
+\textbf{多题型支持：编程题、选择题、判断题统一框架}
+
+\textbf{多语言生成：Python、C++、Java代码自动生成}
+
+\textbf{智能验证：内置代码自测功能，验证生成代码能否通过测试用例}
+
+\textbf{质量保证：AI生成后通过本地编译器进行功能验证}
+
+\textbf{API接口设计}
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{题目自测\\
+  在智能出题界面调用API生成编程题后将参考代码放入本地编译器中进行评测确保所有测试用例都能通过检测。}
+\end{enumerate}
+
+\section{任务分工}\label{ux4efbux52a1ux5206ux5de5}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  洪铭 50\%
+  \end{quote}
+\item
+  \begin{quote}
+  黎越 35\%
+  \end{quote}
+\item
+  \begin{quote}
+  耿天翊 15\%
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+\textbf{任务完成详细列表：}
+\end{quote}
+
+洪铭：
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  管理员模块功能的实现；
+  \end{quote}
+\item
+  \begin{quote}
+  登陆和注册界面和功能的实现；
+  \end{quote}
+\item
+  \begin{quote}
+  教师端数据库的搭建及教师端基础功能的实现。
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+黎越：
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  智能出题界面及调用API智能生成题目并进行自测；
+  \end{quote}
+\item
+  \begin{quote}
+  完善题库，将数据库中不同数据表进行关联并进行可视化处理。
+  \end{quote}
+\item
+  \begin{quote}
+  学生端界面的搭建及编程题代码提交界面的搭建和美化。
+  \end{quote}
+\end{enumerate}
+
+\begin{quote}
+耿天翊：
+\end{quote}
+
+评测机制的搭建和完善；
+
+\section{实习心得}\label{ux5b9eux4e60ux5fc3ux5f97}
+
+通过本次实习经历，我获益匪浅，主要体现在以下方面：
+
+\begin{itemize}
+\item
+  熟练掌握使用大模型协助制作项目
+\item
+  对项目前后端开发及交互有了初步认知和理解
+\item
+  通过此次实习为将来参加大创等比赛奠定基础
+\item
+  培养了创新思维及项目实践能力
+\end{itemize}
+
+尽管在制作项目过程中遇到了许多困难，但在我们组员的共同努力下将这些困难一一克服了，我们坚信未来我们会做出更具有挑战性的项目来丰富自己的简历。
+
+\section{要求指标}\label{ux8981ux6c42ux6307ux6807}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \begin{quote}
+  前端代码共14342行
+  \end{quote}
+\item
+  \begin{quote}
+  后端代码共9367行
+  \end{quote}
+\end{enumerate}

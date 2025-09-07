@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS测试页面</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>CSS测试页面</h1>
+            <p>如果您能看到这个页面有样式，说明CSS工作正常！</p>
+        </div>
+        
+        <div class="login-form">
+            <h2>测试内容</h2>
+            <p>这是一个测试页面，用来验证CSS样式是否正常工作。</p>
+            
+            <div class="form-group">
+                <label>测试输入框</label>
+                <input type="text" placeholder="测试输入">
+            </div>
+            
+            <div class="form-group">
+                <button class="btn btn-primary">主要按钮</button>
+                <button class="btn btn-outline">轮廓按钮</button>
+            </div>
+            
+            <div class="card">
+                <h3>卡片测试</h3>
+                <p>这是一个卡片组件的测试。</p>
+            </div>
+        </div>
+        
+        <div class="login-footer">
+            <p><a href="{{ url_for('login') }}">返回登录页面</a></p>
+        </div>
+    </div>
+</body>
+</html>
