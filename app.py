@@ -422,3 +422,5 @@ app.register_blueprint(password_reset_bp)
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
+
+
